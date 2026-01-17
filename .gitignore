@@ -1,0 +1,31 @@
+# WordPress uploads (user-generated content)
+wp-content/uploads/
+
+# WordPress core (usually not versioned)
+# Uncomment if you don't want to track core files
+# wp-admin/
+# wp-includes/
+# wp-*.php
+# index.php
+# license.txt
+# readme.html
+# xmlrpc.php
+
+# Environment and config
+wp-config-local.php
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+debug.log
