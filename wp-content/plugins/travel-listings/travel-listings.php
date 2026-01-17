@@ -616,8 +616,47 @@ class Travel_Listings {
                 ),
             );
         }
-        
+
+        // Store price filter values for post-query filtering
+        $price_from = isset($atts['price_from']) && $atts['price_from'] !== '' ? floatval($atts['price_from']) : null;
+        $price_to = isset($atts['price_to']) && $atts['price_to'] !== '' ? floatval($atts['price_to']) : null;
+
         $listings = new WP_Query($args);
+
+        // If price filtering is needed, filter the results
+        if ($price_from !== null || $price_to !== null) {
+            $filtered_posts = array();
+            while ($listings->have_posts()) {
+                $listings->the_post();
+                $price_raw = get_post_meta(get_the_ID(), '_travel_price', true);
+                // Extract numeric value from price string (e.g., "€99" -> 99, "Free" -> 0)
+                $price_numeric = $this->extract_price_value($price_raw);
+
+                $include = true;
+                if ($price_from !== null && $price_numeric < $price_from) {
+                    $include = false;
+                }
+                if ($price_to !== null && $price_numeric > $price_to) {
+                    $include = false;
+                }
+
+                if ($include) {
+                    $filtered_posts[] = get_the_ID();
+                }
+            }
+            wp_reset_postdata();
+
+            // Re-query with filtered IDs
+            if (!empty($filtered_posts)) {
+                $args['post__in'] = $filtered_posts;
+                $args['orderby'] = 'post__in';
+                unset($args['meta_key']);
+                $listings = new WP_Query($args);
+            } else {
+                // No posts match the filter
+                $listings = new WP_Query(array('post__in' => array(0)));
+            }
+        }
         
         // Get categories for filter
         $categories = get_terms(array(
@@ -639,6 +678,14 @@ class Travel_Listings {
                             <div class="filter-group">
                                 <label for="filter-date-to"><?php _e('Date To', 'travel-listings'); ?></label>
                                 <input type="date" id="filter-date-to" name="date_to" class="filter-input">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filter-price-from"><?php _e('Price From', 'travel-listings'); ?></label>
+                                <input type="number" id="filter-price-from" name="price_from" class="filter-input" min="0" step="0.01" placeholder="€">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filter-price-to"><?php _e('Price To', 'travel-listings'); ?></label>
+                                <input type="number" id="filter-price-to" name="price_to" class="filter-input" min="0" step="0.01" placeholder="€">
                             </div>
                             <?php if (!empty($categories) && !is_wp_error($categories)): ?>
                             <div class="filter-group">
@@ -794,6 +841,8 @@ class Travel_Listings {
             'posts_per_page' => isset($_POST['posts_per_page']) ? intval($_POST['posts_per_page']) : 12,
             'date_from'      => isset($_POST['date_from']) ? sanitize_text_field($_POST['date_from']) : '',
             'date_to'        => isset($_POST['date_to']) ? sanitize_text_field($_POST['date_to']) : '',
+            'price_from'     => isset($_POST['price_from']) && $_POST['price_from'] !== '' ? sanitize_text_field($_POST['price_from']) : '',
+            'price_to'       => isset($_POST['price_to']) && $_POST['price_to'] !== '' ? sanitize_text_field($_POST['price_to']) : '',
             'category'       => isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '',
             'show_filter'    => 'no',
         );
@@ -803,6 +852,41 @@ class Travel_Listings {
         $html = ob_get_clean();
         
         wp_send_json_success(array('html' => $html));
+    }
+
+    /**
+     * Extract numeric value from price string
+     * Examples: "€99" -> 99, "Free" -> 0, "150.50" -> 150.50, "$200" -> 200
+     */
+    private function extract_price_value($price_string) {
+        if (empty($price_string)) {
+            return 0;
+        }
+
+        // Check for "free" (case-insensitive)
+        if (strtolower(trim($price_string)) === 'free' || strtolower(trim($price_string)) === 'bezmaksas') {
+            return 0;
+        }
+
+        // Remove currency symbols and non-numeric characters except . and ,
+        $clean = preg_replace('/[^0-9.,]/', '', $price_string);
+
+        // Handle European format (comma as decimal separator)
+        // If there's a comma after the last dot, or no dot at all, treat comma as decimal
+        if (strpos($clean, ',') !== false) {
+            $last_comma = strrpos($clean, ',');
+            $last_dot = strrpos($clean, '.');
+            if ($last_dot === false || $last_comma > $last_dot) {
+                // Comma is the decimal separator
+                $clean = str_replace('.', '', $clean);
+                $clean = str_replace(',', '.', $clean);
+            } else {
+                // Dot is the decimal separator, comma is thousand separator
+                $clean = str_replace(',', '', $clean);
+            }
+        }
+
+        return floatval($clean);
     }
 }
 

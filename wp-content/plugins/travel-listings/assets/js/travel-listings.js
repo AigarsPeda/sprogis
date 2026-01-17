@@ -45,6 +45,8 @@
         nonce: travelListings.nonce,
         date_from: $filterForm.find('[name="date_from"]').val(),
         date_to: $filterForm.find('[name="date_to"]').val(),
+        price_from: $filterForm.find('[name="price_from"]').val(),
+        price_to: $filterForm.find('[name="price_to"]').val(),
         category: $filterForm.find('[name="category"]').val(),
         posts_per_page: 12,
       };

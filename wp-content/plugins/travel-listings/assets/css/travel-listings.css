@@ -161,7 +161,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .travel-listings-filter {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 16px;
-    padding: 20px;
+    padding: 20px 20px 12px 20px;
     margin-bottom: 28px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(0, 0, 0, 0.04);
@@ -169,6 +169,12 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .filter-form {
     margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.filter-form * {
+    box-sizing: border-box;
 }
 
 .filter-row {
@@ -176,20 +182,37 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     flex-wrap: wrap;
     gap: 14px;
     align-items: flex-end;
+    margin: 0;
+    padding: 0;
 }
 
 .filter-group {
     flex: 1;
     min-width: 160px;
+    margin: 0;
+    padding: 0;
 }
 
 .filter-group label {
     display: block;
-    margin-bottom: 6px;
+    margin: 0 0 8px 0;
+    padding: 0;
     font-weight: 600;
     color: #475569;
     font-size: 13px;
     letter-spacing: 0.2px;
+    line-height: 1.2;
+    border: none;
+}
+
+.filter-group label::before,
+.filter-group label::after {
+    display: none !important;
+    content: none !important;
+}
+
+.filter-group br {
+    display: none !important;
 }
 
 .filter-input {
@@ -208,6 +231,17 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     outline: none;
     border-color: #00a8e8;
     box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.12);
+}
+
+/* Number input styling */
+.filter-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.filter-input[type="number"]::-webkit-outer-spin-button,
+.filter-input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .filter-buttons {
@@ -255,7 +289,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 /* Listings Grid */
 .travel-listings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
 
