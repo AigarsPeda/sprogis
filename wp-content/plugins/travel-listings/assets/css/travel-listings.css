@@ -356,7 +356,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 /* Listing Content */
 .listing-content {
-    padding: 16px;
+    padding: 14px 16px 14px 16px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -383,7 +383,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 /* Title */
 .listing-title {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-size: 16px;
     line-height: 1.35;
 }
@@ -403,8 +403,8 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .listing-meta {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
+    gap: 4px;
+    margin-bottom: 10px;
     color: #64748b;
     font-size: 13px;
 }
@@ -437,9 +437,9 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .listing-excerpt {
     color: #64748b;
     font-size: 13px;
-    line-height: 1.55;
-    margin-bottom: 14px;
-    flex-grow: 1;
+    line-height: 1.5;
+    margin-top: 6px;
+    margin-bottom: 10px;
 }
 
 /* Actions */
@@ -452,7 +452,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .listing-btn {
     flex: 1;
     padding: 0 16px;
-    height: 44px;
+    height: 40px;
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;

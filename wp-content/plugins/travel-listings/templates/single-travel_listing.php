@@ -20,6 +20,43 @@ while (have_posts()) :
 ?>
 
 <style>
+/* Hide theme header elements on single listing */
+body.single-travel_listing #header,
+body.single-travel_listing #headerimg,
+body.single-travel_listing .site-header,
+body.single-travel_listing .wp-site-blocks > header,
+body.single-travel_listing .site-title,
+body.single-travel_listing .site-branding,
+body.single-travel_listing .entry-header,
+body.single-travel_listing .page-header,
+body.single-travel_listing .wp-block-post-title,
+body.single-travel_listing header.wp-block-template-part {
+    display: none !important;
+}
+
+/* Remove top spacing */
+body.single-travel_listing .wp-site-blocks,
+body.single-travel_listing .site-content,
+body.single-travel_listing .content-area,
+body.single-travel_listing main,
+body.single-travel_listing article {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Hide footer */
+body.single-travel_listing #footer,
+body.single-travel_listing .site-footer,
+body.single-travel_listing footer {
+    display: none !important;
+}
+
+/* Hide hr elements */
+body.single-travel_listing > hr,
+body.single-travel_listing hr {
+    display: none !important;
+}
+
 .single-travel-listing {
     max-width: 900px;
     margin: 0 auto;
