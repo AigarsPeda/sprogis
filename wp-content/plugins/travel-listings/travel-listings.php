@@ -320,10 +320,11 @@ class Travel_Listings {
     public function render_details_meta_box($post) {
         $location = get_post_meta($post->ID, '_travel_location', true);
         $price = get_post_meta($post->ID, '_travel_price', true);
+        $price_on_image = get_post_meta($post->ID, '_travel_price_on_image', true);
         $contact_email = get_post_meta($post->ID, '_travel_contact_email', true);
         $contact_phone = get_post_meta($post->ID, '_travel_contact_phone', true);
         $website_url = get_post_meta($post->ID, '_travel_website_url', true);
-        
+
         ?>
         <table class="form-table">
             <tr>
@@ -332,7 +333,19 @@ class Travel_Listings {
             </tr>
             <tr>
                 <th><label for="travel_price"><?php _e('Price:', 'travel-listings'); ?></label></th>
-                <td><input type="text" id="travel_price" name="travel_price" value="<?php echo esc_attr($price); ?>" class="regular-text" placeholder="e.g., €99 or Free"></td>
+                <td>
+                    <input type="text" id="travel_price" name="travel_price" value="<?php echo esc_attr($price); ?>" class="regular-text" placeholder="e.g., €99 or Free">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="travel_price_on_image"><?php _e('Price Display:', 'travel-listings'); ?></label></th>
+                <td>
+                    <label>
+                        <input type="checkbox" id="travel_price_on_image" name="travel_price_on_image" value="1" <?php checked($price_on_image, '1'); ?>>
+                        <?php _e('Show price badge on image', 'travel-listings'); ?>
+                    </label>
+                    <p class="description"><?php _e('If checked, price will display as a badge on the image. Otherwise, it will appear with other listing details.', 'travel-listings'); ?></p>
+                </td>
             </tr>
             <tr>
                 <th><label for="travel_contact_email"><?php _e('Contact Email:', 'travel-listings'); ?></label></th>
@@ -386,7 +399,11 @@ class Travel_Listings {
         if (isset($_POST['travel_price'])) {
             update_post_meta($post_id, '_travel_price', sanitize_text_field($_POST['travel_price']));
         }
-        
+
+        // Save price display option (checkbox)
+        $price_on_image = isset($_POST['travel_price_on_image']) ? '1' : '0';
+        update_post_meta($post_id, '_travel_price_on_image', $price_on_image);
+
         if (isset($_POST['travel_contact_email'])) {
             update_post_meta($post_id, '_travel_contact_email', sanitize_email($_POST['travel_contact_email']));
         }
@@ -675,12 +692,13 @@ class Travel_Listings {
         $date_to = get_post_meta($post_id, '_travel_date_to', true);
         $location = get_post_meta($post_id, '_travel_location', true);
         $price = get_post_meta($post_id, '_travel_price', true);
+        $price_on_image = get_post_meta($post_id, '_travel_price_on_image', true);
         $contact_email = get_post_meta($post_id, '_travel_contact_email', true);
         $contact_phone = get_post_meta($post_id, '_travel_contact_phone', true);
         $website_url = get_post_meta($post_id, '_travel_website_url', true);
-        
+
         $categories = get_the_terms($post_id, 'listing_category');
-        
+
         ?>
         <article class="travel-listing-card" data-id="<?php echo esc_attr($post_id); ?>">
             <?php if (has_post_thumbnail($post_id)): ?>
@@ -688,7 +706,7 @@ class Travel_Listings {
                 <a href="<?php echo get_permalink($post_id); ?>">
                     <?php echo get_the_post_thumbnail($post_id, 'medium_large', array('class' => 'listing-thumbnail')); ?>
                 </a>
-                <?php if ($price): ?>
+                <?php if ($price && $price_on_image === '1'): ?>
                 <span class="listing-price-badge"><?php echo esc_html($price); ?></span>
                 <?php endif; ?>
             </div>
@@ -708,25 +726,32 @@ class Travel_Listings {
                 </h3>
                 
                 <div class="listing-meta">
+                    <?php if ($price): ?>
+                    <div class="listing-price-meta">
+                        <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor" d="M15 18.5c-2.51 0-4.68-1.42-5.76-3.5H15v-2H8.58c-.05-.33-.08-.66-.08-1s.03-.67.08-1H15V9H9.24C10.32 6.92 12.5 5.5 15 5.5c1.61 0 3.09.59 4.23 1.57L21 5.3C19.41 3.87 17.3 3 15 3c-3.92 0-7.24 2.51-8.48 6H3v2h3.06c-.04.33-.06.66-.06 1s.02.67.06 1H3v2h3.52c1.24 3.49 4.56 6 8.48 6 2.31 0 4.41-.87 6-2.3l-1.78-1.77c-1.13.98-2.6 1.57-4.22 1.57z"/>
+                        </svg>
+                        <span><?php echo esc_html($price); ?></span>
+                    </div>
+                    <?php endif; ?>
+
                     <?php if ($date_from || $date_to): ?>
                     <div class="listing-dates">
                         <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
                             <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
                         </svg>
-                        <span>
-                            <?php 
+                        <span><?php
                             if ($date_from && $date_to) {
-                                echo date_i18n('d.m.Y', strtotime($date_from)) . ' - ' . date_i18n('d.m.Y', strtotime($date_to));
+                                echo date_i18n('d.m.Y', strtotime($date_from)) . ' – ' . date_i18n('d.m.Y', strtotime($date_to));
                             } elseif ($date_from) {
                                 echo date_i18n('d.m.Y', strtotime($date_from));
                             } elseif ($date_to) {
                                 echo __('Until', 'travel-listings') . ' ' . date_i18n('d.m.Y', strtotime($date_to));
                             }
-                            ?>
-                        </span>
+                        ?></span>
                     </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($location): ?>
                     <div class="listing-location">
                         <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
