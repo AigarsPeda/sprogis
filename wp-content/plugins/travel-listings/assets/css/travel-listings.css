@@ -1,0 +1,606 @@
+/* Travel Listings - Frontend Styles */
+
+/* Hide page meta and remove spacing when using travel listings */
+.page .entry-meta,
+.page .post-meta,
+.page .wp-block-post-date,
+.page .posted-on,
+.single .entry-meta,
+body:has(.travel-hero-section) .entry-meta,
+body:has(.travel-hero-section) .post-meta,
+body:has(.travel-hero-section) .wp-block-post-date,
+body:has(.travel-listings-wrapper) .entry-header .posted-on,
+body:has(.travel-hero-section) .entry-header,
+body:has(.travel-hero-section) .page-header,
+body:has(.travel-hero-section) .wp-block-post-title {
+    display: none !important;
+}
+
+/* Remove theme spacing above hero */
+body:has(.travel-hero-section) .entry-content,
+body:has(.travel-hero-section) .page-content,
+body:has(.travel-hero-section) .site-content,
+body:has(.travel-hero-section) .content-area,
+body:has(.travel-hero-section) main,
+body:has(.travel-hero-section) article {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+body:has(.travel-hero-section) .wp-block-post-content {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Hero Wrapper - forces full width */
+.travel-hero-wrapper {
+    display: block;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Additional theme overrides for twentytwentyfive */
+body:has(.travel-hero-wrapper) .wp-block-group,
+body:has(.travel-hero-wrapper) .is-layout-constrained > *,
+body:has(.travel-hero-wrapper) .wp-block-post-content > * {
+    margin-block-start: 0 !important;
+}
+
+body:has(.travel-hero-wrapper) .entry-content > *:first-child,
+body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
+    margin-top: 0 !important;
+    margin-block-start: 0 !important;
+}
+
+/* Remove padding from WordPress block group containing our hero */
+.wp-block-group:has(.travel-hero-wrapper),
+.wp-block-group:has(.travel-listings-wrapper) {
+    padding-top: 0 !important;
+    padding-block-start: 0 !important;
+    margin-top: 0 !important;
+}
+
+.wp-block-group.has-global-padding:has(.travel-hero-wrapper) {
+    padding-top: 0 !important;
+    padding-block-start: 0 !important;
+}
+
+/* Hero Section */
+.travel-hero-section {
+    position: relative;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 450px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+    padding: 0;
+    box-sizing: border-box;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+}
+
+.travel-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.travel-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 80px 20px;
+    max-width: 900px;
+    width: 100%;
+}
+
+.travel-hero-title {
+    color: #ffffff;
+    font-size: 56px;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.travel-hero-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 22px;
+    margin: 0;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .travel-hero-section {
+        min-height: 350px;
+        margin-top: -20px;
+    }
+    
+    .travel-hero-title {
+        font-size: 32px;
+    }
+    
+    .travel-hero-subtitle {
+        font-size: 16px;
+    }
+    
+    .travel-hero-content {
+        padding: 50px 20px;
+    }
+}
+
+/* Wrapper */
+.travel-listings-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Filter Section */
+.travel-listings-filter {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.filter-form {
+    margin: 0;
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 160px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #475569;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+    box-sizing: border-box;
+    color: #334155;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #00a8e8;
+    box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.12);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1;
+    text-align: center;
+}
+
+.filter-btn-primary {
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
+    box-shadow: 0 3px 12px rgba(0, 119, 182, 0.25);
+}
+
+.filter-btn-primary:hover {
+    background: linear-gradient(135deg, #0096d1 0%, #00669e 100%);
+    box-shadow: 0 5px 18px rgba(0, 119, 182, 0.35);
+    transform: translateY(-1px);
+}
+
+.filter-btn-secondary {
+    background: #fff;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.filter-btn-secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Listings Grid */
+.travel-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* Listing Card */
+.travel-listing-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.travel-listing-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Listing Image */
+.listing-image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    line-height: 0;
+    font-size: 0;
+}
+
+.listing-image a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 0;
+}
+
+.listing-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    display: block;
+    vertical-align: top;
+}
+
+.travel-listing-card:hover .listing-thumbnail {
+    transform: scale(1.08);
+}
+
+.listing-price-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    box-shadow: 0 3px 12px rgba(0, 119, 182, 0.35);
+    letter-spacing: 0.3px;
+}
+
+/* Listing Content */
+.listing-content {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Categories */
+.listing-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.listing-category {
+    background: linear-gradient(135deg, #e0f7ff 0%, #d0efff 100%);
+    color: #0077b6;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Title */
+.listing-title {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.listing-title a {
+    color: #1a1a2e;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 600;
+}
+
+.listing-title a:hover {
+    color: #00a8e8;
+}
+
+/* Meta Info */
+.listing-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.listing-dates,
+.listing-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.listing-meta .icon {
+    flex-shrink: 0;
+    color: #94a3b8;
+    width: 14px;
+    height: 14px;
+}
+
+/* Excerpt */
+.listing-excerpt {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 14px;
+    flex-grow: 1;
+}
+
+/* Actions */
+.listing-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.listing-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+}
+
+.listing-btn-primary {
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
+    box-shadow: 0 3px 12px rgba(0, 119, 182, 0.25);
+}
+
+.listing-btn-primary:hover {
+    background: linear-gradient(135deg, #0096d1 0%, #00669e 100%);
+    color: #fff;
+    box-shadow: 0 5px 18px rgba(0, 119, 182, 0.35);
+    transform: translateY(-1px);
+}
+
+.listing-btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.listing-btn-secondary:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.listing-btn .icon {
+    width: 13px;
+    height: 13px;
+}
+
+/* No Listings Found */
+.no-listings-found {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    color: #666;
+}
+
+.no-listings-found p {
+    font-size: 18px;
+    margin: 0;
+}
+
+/* Loading State */
+.travel-listings-loading {
+    position: relative;
+    min-height: 200px;
+}
+
+.travel-listings-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #0073aa;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .travel-listings-wrapper {
+        padding: 15px;
+    }
+    
+    .travel-listings-filter {
+        padding: 16px;
+    }
+    
+    .filter-row {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .filter-buttons {
+        width: 100%;
+    }
+    
+    .travel-listings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+    }
+    
+    .listing-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .listing-content {
+        padding: 14px;
+    }
+    
+    .listing-title {
+        font-size: 15px;
+    }
+    
+    .travel-listings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .travel-listings-filter {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .filter-group label {
+        color: #e2e8f0;
+    }
+    
+    .filter-input {
+        background: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+    
+    .filter-input:focus {
+        border-color: #00a8e8;
+        box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.2);
+    }
+    
+    .filter-btn-secondary {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+    
+    .filter-btn-secondary:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+    
+    .travel-listing-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .listing-title a {
+        color: #f1f5f9;
+    }
+    
+    .listing-title a:hover {
+        color: #38bdf8;
+    }
+    
+    .listing-meta,
+    .listing-excerpt {
+        color: #94a3b8;
+    }
+    
+    .listing-category {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #38bdf8;
+    }
+    
+    .listing-btn-secondary {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+    
+    .no-listings-found {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #94a3b8;
+    }
+}
