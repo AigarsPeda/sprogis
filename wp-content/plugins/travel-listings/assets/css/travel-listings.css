@@ -153,7 +153,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .travel-listings-wrapper {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 20px 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
@@ -307,16 +307,18 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .listing-price-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
     box-shadow: 0 3px 12px rgba(0, 119, 182, 0.35);
     letter-spacing: 0.3px;
+    z-index: 10;
+    line-height: 1;
 }
 
 /* Listing Content */
@@ -406,24 +408,28 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .listing-btn {
     flex: 1;
-    padding: 10px 14px;
+    padding: 0 16px;
+    height: 44px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: none !important;
     text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px;
     transition: all 0.25s ease;
     box-sizing: border-box;
+    line-height: 1 !important;
 }
 
-.listing-btn-primary {
+a.listing-btn-primary {
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
     box-shadow: 0 3px 12px rgba(0, 119, 182, 0.25);
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .listing-btn-primary:hover {

@@ -744,9 +744,7 @@ class Travel_Listings {
                 <?php endif; ?>
                 
                 <div class="listing-actions">
-                    <a href="<?php echo get_permalink($post_id); ?>" class="listing-btn listing-btn-primary">
-                        <?php _e('View Details', 'travel-listings'); ?>
-                    </a>
+                    <a href="<?php echo get_permalink($post_id); ?>" class="listing-btn listing-btn-primary"><?php _e('View Details', 'travel-listings'); ?></a>
                     <?php if ($contact_phone): ?>
                     <a href="tel:<?php echo esc_attr($contact_phone); ?>" class="listing-btn listing-btn-secondary">
                         <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
