@@ -22,6 +22,8 @@ class Travel_Listings {
         add_shortcode('travel_listings', array($this, 'display_listings_shortcode'));
         add_action('wp_ajax_filter_travel_listings', array($this, 'ajax_filter_listings'));
         add_action('wp_ajax_nopriv_filter_travel_listings', array($this, 'ajax_filter_listings'));
+        add_action('wp_ajax_load_more_travel_listings', array($this, 'ajax_load_more_listings'));
+        add_action('wp_ajax_nopriv_load_more_travel_listings', array($this, 'ajax_load_more_listings'));
         
         // Add custom columns to admin
         add_filter('manage_travel_listing_posts_columns', array($this, 'add_admin_columns'));
@@ -439,6 +441,7 @@ class Travel_Listings {
         wp_localize_script('travel-listings-script', 'travelListings', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('travel_listings_filter'),
+            'loadMoreText' => __('Loading...', 'travel-listings'),
         ));
     }
     
@@ -522,7 +525,7 @@ class Travel_Listings {
         $default_title = get_option('travel_listings_hero_title', '');
         $default_subtitle = get_option('travel_listings_hero_subtitle', '');
         $default_image = get_option('travel_listings_hero_image', '');
-        
+
         $atts = shortcode_atts(array(
             'posts_per_page' => 12,
             'category'       => '',
@@ -532,17 +535,24 @@ class Travel_Listings {
             'hero_image'     => $default_image,
             'show_hero'      => 'yes',
         ), $atts);
-        
+
         ob_start();
-        
+
         // Render hero section if enabled and title or image is provided
         if ($atts['show_hero'] === 'yes' && (!empty($atts['hero_title']) || !empty($atts['hero_image']))) {
             $this->render_hero_section($atts);
         }
-        
+
         $this->render_listings($atts);
-        
-        return ob_get_clean();
+
+        $output = ob_get_clean();
+
+        // Remove empty paragraph tags that WordPress adds
+        $output = preg_replace('/<p>\s*<\/p>/', '', $output);
+        $output = preg_replace('/<p><br\s*\/?>\s*<\/p>/', '', $output);
+        $output = preg_replace('/<br\s*\/?>\s*(?=<)/', '', $output);
+
+        return $output;
     }
     
     /**
@@ -574,9 +584,12 @@ class Travel_Listings {
      * Render Listings
      */
     public function render_listings($atts, $ajax = false) {
+        $paged = isset($atts['paged']) ? intval($atts['paged']) : 1;
+
         $args = array(
             'post_type'      => 'travel_listing',
             'posts_per_page' => intval($atts['posts_per_page']),
+            'paged'          => $paged,
             'post_status'    => 'publish',
             'orderby'        => 'meta_value',
             'meta_key'       => '_travel_date_from',
@@ -664,6 +677,10 @@ class Travel_Listings {
             'hide_empty' => true,
         ));
         
+        // Calculate total pages
+        $total_posts = $listings->found_posts;
+        $max_pages = $listings->max_num_pages;
+
         if (!$ajax) {
             ?>
             <div class="travel-listings-wrapper">
@@ -706,8 +723,12 @@ class Travel_Listings {
                     </form>
                 </div>
                 <?php endif; ?>
-                
-                <div id="travel-listings-container" class="travel-listings-grid">
+
+                <div id="travel-listings-container"
+                     class="travel-listings-grid"
+                     data-page="1"
+                     data-max-pages="<?php echo esc_attr($max_pages); ?>"
+                     data-posts-per-page="<?php echo esc_attr($atts['posts_per_page']); ?>">
             <?php
         }
         
@@ -725,12 +746,24 @@ class Travel_Listings {
         
         if (!$ajax) {
             ?>
+                <?php if ($max_pages > 1): ?>
+                <div class="travel-listings-infinite-scroll">
+                    <div id="travel-listings-sentinel" class="infinite-scroll-sentinel" data-max-pages="<?php echo esc_attr($max_pages); ?>"></div>
+                    <div id="travel-listings-loader" class="infinite-scroll-loader" style="display: none;">
+                        <div class="loader-spinner"></div>
+                        <span><?php _e('Loading more listings...', 'travel-listings'); ?></span>
+                    </div>
+                    <div id="travel-listings-end" class="infinite-scroll-end" style="display: none;">
+                        <span><?php _e('All listings loaded', 'travel-listings'); ?></span>
+                    </div>
+                </div>
+                <?php endif; ?>
                 </div>
             </div>
             <?php
         }
     }
-    
+
     /**
      * Render Single Listing Card
      */
@@ -836,9 +869,10 @@ class Travel_Listings {
      */
     public function ajax_filter_listings() {
         check_ajax_referer('travel_listings_filter', 'nonce');
-        
+
         $atts = array(
             'posts_per_page' => isset($_POST['posts_per_page']) ? intval($_POST['posts_per_page']) : 12,
+            'paged'          => 1,
             'date_from'      => isset($_POST['date_from']) ? sanitize_text_field($_POST['date_from']) : '',
             'date_to'        => isset($_POST['date_to']) ? sanitize_text_field($_POST['date_to']) : '',
             'price_from'     => isset($_POST['price_from']) && $_POST['price_from'] !== '' ? sanitize_text_field($_POST['price_from']) : '',
@@ -846,12 +880,100 @@ class Travel_Listings {
             'category'       => isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '',
             'show_filter'    => 'no',
         );
-        
+
+        // Get max pages for the filtered query
+        $max_pages = $this->get_max_pages($atts);
+
         ob_start();
         $this->render_listings($atts, true);
         $html = ob_get_clean();
-        
-        wp_send_json_success(array('html' => $html));
+
+        wp_send_json_success(array(
+            'html' => $html,
+            'max_pages' => $max_pages,
+        ));
+    }
+
+    /**
+     * AJAX Load More Listings (Infinite Scroll)
+     */
+    public function ajax_load_more_listings() {
+        check_ajax_referer('travel_listings_filter', 'nonce');
+
+        $paged = isset($_POST['paged']) ? intval($_POST['paged']) : 1;
+
+        $atts = array(
+            'posts_per_page' => isset($_POST['posts_per_page']) ? intval($_POST['posts_per_page']) : 12,
+            'paged'          => $paged,
+            'date_from'      => isset($_POST['date_from']) ? sanitize_text_field($_POST['date_from']) : '',
+            'date_to'        => isset($_POST['date_to']) ? sanitize_text_field($_POST['date_to']) : '',
+            'price_from'     => isset($_POST['price_from']) && $_POST['price_from'] !== '' ? sanitize_text_field($_POST['price_from']) : '',
+            'price_to'       => isset($_POST['price_to']) && $_POST['price_to'] !== '' ? sanitize_text_field($_POST['price_to']) : '',
+            'category'       => isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '',
+            'show_filter'    => 'no',
+        );
+
+        ob_start();
+        $this->render_listings($atts, true);
+        $html = ob_get_clean();
+
+        // Get max pages to know if there are more
+        $max_pages = $this->get_max_pages($atts);
+
+        wp_send_json_success(array(
+            'html'      => $html,
+            'paged'     => $paged,
+            'max_pages' => $max_pages,
+            'has_more'  => $paged < $max_pages,
+        ));
+    }
+
+    /**
+     * Get max pages for a query
+     */
+    private function get_max_pages($atts) {
+        $args = array(
+            'post_type'      => 'travel_listing',
+            'posts_per_page' => intval($atts['posts_per_page']),
+            'post_status'    => 'publish',
+            'orderby'        => 'meta_value',
+            'meta_key'       => '_travel_date_from',
+            'order'          => 'ASC',
+            'meta_query'     => array(
+                'relation' => 'AND',
+            ),
+        );
+
+        if (!empty($atts['date_from'])) {
+            $args['meta_query'][] = array(
+                'key'     => '_travel_date_from',
+                'value'   => $atts['date_from'],
+                'compare' => '>=',
+                'type'    => 'DATE',
+            );
+        }
+
+        if (!empty($atts['date_to'])) {
+            $args['meta_query'][] = array(
+                'key'     => '_travel_date_to',
+                'value'   => $atts['date_to'],
+                'compare' => '<=',
+                'type'    => 'DATE',
+            );
+        }
+
+        if (!empty($atts['category'])) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'listing_category',
+                    'field'    => 'slug',
+                    'terms'    => $atts['category'],
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        return $query->max_num_pages;
     }
 
     /**
