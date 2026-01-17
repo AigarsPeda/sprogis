@@ -426,7 +426,7 @@ class Travel_Listings {
     }
     
     /**
-     * Enqueue Admin Scripts
+     * Enqueue Admin Scripts/Users/aigarspeda/Library/Application Support/CleanShot/media/media_k4AtKaOfWV/CleanShot 2026-01-17 at 18.28.28@2x.png
      */
     public function admin_enqueue_scripts($hook) {
         global $post_type;
