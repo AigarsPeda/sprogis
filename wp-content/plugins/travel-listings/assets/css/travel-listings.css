@@ -181,6 +181,11 @@ body:has(.travel-hero-section) .wp-block-post-title {
     display: none !important;
 }
 
+/* Page background for travel listings */
+body:has(.travel-listings-wrapper) {
+    background-color: #f1f5f9;
+}
+
 /* Remove theme spacing above hero */
 body:has(.travel-hero-section) .entry-content,
 body:has(.travel-hero-section) .page-content,
