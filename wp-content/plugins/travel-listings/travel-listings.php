@@ -24,6 +24,147 @@ class Travel_Listings {
 
     private $default_language = 'lv';
 
+    /**
+     * Frontend translations for supported languages
+     */
+    private $translations = array(
+        'Date From' => array(
+            'lv' => 'Datums no',
+            'en' => 'Date From',
+            'ru' => 'Дата с',
+        ),
+        'Date To' => array(
+            'lv' => 'Datums līdz',
+            'en' => 'Date To',
+            'ru' => 'Дата до',
+        ),
+        'Price From' => array(
+            'lv' => 'Cena no',
+            'en' => 'Price From',
+            'ru' => 'Цена от',
+        ),
+        'Price To' => array(
+            'lv' => 'Cena līdz',
+            'en' => 'Price To',
+            'ru' => 'Цена до',
+        ),
+        'Category' => array(
+            'lv' => 'Kategorija',
+            'en' => 'Category',
+            'ru' => 'Категория',
+        ),
+        'All Categories' => array(
+            'lv' => 'Visas kategorijas',
+            'en' => 'All Categories',
+            'ru' => 'Все категории',
+        ),
+        'Filter' => array(
+            'lv' => 'Filtrēt',
+            'en' => 'Filter',
+            'ru' => 'Фильтр',
+        ),
+        'Reset' => array(
+            'lv' => 'Atiestatīt',
+            'en' => 'Reset',
+            'ru' => 'Сбросить',
+        ),
+        'View Details' => array(
+            'lv' => 'Skatīt vairāk',
+            'en' => 'View Details',
+            'ru' => 'Подробнее',
+        ),
+        'Call' => array(
+            'lv' => 'Zvanīt',
+            'en' => 'Call',
+            'ru' => 'Позвонить',
+        ),
+        'No listings found matching your criteria.' => array(
+            'lv' => 'Nav atrasti ieraksti, kas atbilst jūsu kritērijiem.',
+            'en' => 'No listings found matching your criteria.',
+            'ru' => 'Записи, соответствующие вашим критериям, не найдены.',
+        ),
+        'Loading more listings...' => array(
+            'lv' => 'Ielādē vairāk ierakstus...',
+            'en' => 'Loading more listings...',
+            'ru' => 'Загрузка...',
+        ),
+        'All listings loaded' => array(
+            'lv' => 'Visi ieraksti ielādēti',
+            'en' => 'All listings loaded',
+            'ru' => 'Все записи загружены',
+        ),
+        'Until' => array(
+            'lv' => 'Līdz',
+            'en' => 'Until',
+            'ru' => 'До',
+        ),
+        'From' => array(
+            'lv' => 'No',
+            'en' => 'From',
+            'ru' => 'С',
+        ),
+        'Back to listings' => array(
+            'lv' => 'Atpakaļ uz sarakstu',
+            'en' => 'Back to listings',
+            'ru' => 'Назад к списку',
+        ),
+        'Price' => array(
+            'lv' => 'Cena',
+            'en' => 'Price',
+            'ru' => 'Цена',
+        ),
+        'Details' => array(
+            'lv' => 'Detaļas',
+            'en' => 'Details',
+            'ru' => 'Детали',
+        ),
+        'Start Date' => array(
+            'lv' => 'Sākuma datums',
+            'en' => 'Start Date',
+            'ru' => 'Дата начала',
+        ),
+        'End Date' => array(
+            'lv' => 'Beigu datums',
+            'en' => 'End Date',
+            'ru' => 'Дата окончания',
+        ),
+        'Location' => array(
+            'lv' => 'Vieta',
+            'en' => 'Location',
+            'ru' => 'Место',
+        ),
+        'Email' => array(
+            'lv' => 'E-pasts',
+            'en' => 'Email',
+            'ru' => 'Эл. почта',
+        ),
+        'Phone' => array(
+            'lv' => 'Tālrunis',
+            'en' => 'Phone',
+            'ru' => 'Телефон',
+        ),
+        'Website' => array(
+            'lv' => 'Mājaslapa',
+            'en' => 'Website',
+            'ru' => 'Сайт',
+        ),
+        'Call Now' => array(
+            'lv' => 'Zvanīt tagad',
+            'en' => 'Call Now',
+            'ru' => 'Позвонить',
+        ),
+        'Send Email' => array(
+            'lv' => 'Sūtīt e-pastu',
+            'en' => 'Send Email',
+            'ru' => 'Отправить письмо',
+        ),
+        'Visit Website' => array(
+            'lv' => 'Apmeklēt mājaslapu',
+            'en' => 'Visit Website',
+            'ru' => 'Посетить сайт',
+        ),
+    );
+
     public function __construct() {
         add_action('init', array($this, 'register_post_type'));
         add_action('init', array($this, 'handle_language_switch'));
@@ -79,6 +220,26 @@ class Travel_Listings {
      */
     public function get_languages() {
         return $this->languages;
+    }
+
+    /**
+     * Translate a string based on current language
+     */
+    public function translate($string, $lang = null) {
+        if ($lang === null) {
+            $lang = $this->get_current_language();
+        }
+
+        if (isset($this->translations[$string][$lang])) {
+            return $this->translations[$string][$lang];
+        }
+
+        // Fallback to English, then original string
+        if (isset($this->translations[$string]['en'])) {
+            return $this->translations[$string]['en'];
+        }
+
+        return $string;
     }
 
     /**
@@ -990,26 +1151,26 @@ class Travel_Listings {
                     <form id="travel-filter-form" class="filter-form">
                         <div class="filter-row">
                             <div class="filter-group">
-                                <label for="filter-date-from"><?php _e('Date From', 'travel-listings'); ?></label>
+                                <label for="filter-date-from"><?php echo esc_html($this->translate('Date From')); ?></label>
                                 <input type="date" id="filter-date-from" name="date_from" class="filter-input">
                             </div>
                             <div class="filter-group">
-                                <label for="filter-date-to"><?php _e('Date To', 'travel-listings'); ?></label>
+                                <label for="filter-date-to"><?php echo esc_html($this->translate('Date To')); ?></label>
                                 <input type="date" id="filter-date-to" name="date_to" class="filter-input">
                             </div>
                             <div class="filter-group">
-                                <label for="filter-price-from"><?php _e('Price From', 'travel-listings'); ?></label>
+                                <label for="filter-price-from"><?php echo esc_html($this->translate('Price From')); ?></label>
                                 <input type="number" id="filter-price-from" name="price_from" class="filter-input" min="0" step="0.01" placeholder="€">
                             </div>
                             <div class="filter-group">
-                                <label for="filter-price-to"><?php _e('Price To', 'travel-listings'); ?></label>
+                                <label for="filter-price-to"><?php echo esc_html($this->translate('Price To')); ?></label>
                                 <input type="number" id="filter-price-to" name="price_to" class="filter-input" min="0" step="0.01" placeholder="€">
                             </div>
                             <?php if (!empty($categories) && !is_wp_error($categories)): ?>
                             <div class="filter-group">
-                                <label for="filter-category"><?php _e('Category', 'travel-listings'); ?></label>
+                                <label for="filter-category"><?php echo esc_html($this->translate('Category')); ?></label>
                                 <select id="filter-category" name="category" class="filter-input">
-                                    <option value=""><?php _e('All Categories', 'travel-listings'); ?></option>
+                                    <option value=""><?php echo esc_html($this->translate('All Categories')); ?></option>
                                     <?php foreach ($categories as $cat): ?>
                                     <option value="<?php echo esc_attr($cat->slug); ?>"><?php echo esc_html($cat->name); ?></option>
                                     <?php endforeach; ?>
@@ -1017,8 +1178,8 @@ class Travel_Listings {
                             </div>
                             <?php endif; ?>
                             <div class="filter-group filter-buttons">
-                                <button type="submit" class="filter-btn filter-btn-primary"><?php _e('Filter', 'travel-listings'); ?></button>
-                                <button type="button" id="reset-filter" class="filter-btn filter-btn-secondary"><?php _e('Reset', 'travel-listings'); ?></button>
+                                <button type="submit" class="filter-btn filter-btn-primary"><?php echo esc_html($this->translate('Filter')); ?></button>
+                                <button type="button" id="reset-filter" class="filter-btn filter-btn-secondary"><?php echo esc_html($this->translate('Reset')); ?></button>
                             </div>
                         </div>
                     </form>
@@ -1041,10 +1202,10 @@ class Travel_Listings {
             wp_reset_postdata();
         } else {
             echo '<div class="no-listings-found">';
-            echo '<p>' . __('No listings found matching your criteria.', 'travel-listings') . '</p>';
+            echo '<p>' . esc_html($this->translate('No listings found matching your criteria.')) . '</p>';
             echo '</div>';
         }
-        
+
         if (!$ajax) {
             ?>
                 <?php if ($max_pages > 1): ?>
@@ -1052,10 +1213,10 @@ class Travel_Listings {
                     <div id="travel-listings-sentinel" class="infinite-scroll-sentinel" data-max-pages="<?php echo esc_attr($max_pages); ?>"></div>
                     <div id="travel-listings-loader" class="infinite-scroll-loader" style="display: none;">
                         <div class="loader-spinner"></div>
-                        <span><?php _e('Loading more listings...', 'travel-listings'); ?></span>
+                        <span><?php echo esc_html($this->translate('Loading more listings...')); ?></span>
                     </div>
                     <div id="travel-listings-end" class="infinite-scroll-end" style="display: none;">
-                        <span><?php _e('All listings loaded', 'travel-listings'); ?></span>
+                        <span><?php echo esc_html($this->translate('All listings loaded')); ?></span>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -1127,7 +1288,7 @@ class Travel_Listings {
                             } elseif ($date_from) {
                                 echo date_i18n('d.m.Y', strtotime($date_from));
                             } elseif ($date_to) {
-                                echo __('Until', 'travel-listings') . ' ' . date_i18n('d.m.Y', strtotime($date_to));
+                                echo esc_html($this->translate('Until')) . ' ' . date_i18n('d.m.Y', strtotime($date_to));
                             }
                         ?></span>
                     </div>
@@ -1153,13 +1314,13 @@ class Travel_Listings {
                 <?php endif; ?>
                 
                 <div class="listing-actions">
-                    <a href="<?php echo get_permalink($post_id); ?>" class="listing-btn listing-btn-primary"><?php _e('View Details', 'travel-listings'); ?></a>
+                    <a href="<?php echo get_permalink($post_id); ?>" class="listing-btn listing-btn-primary"><?php echo esc_html($this->translate('View Details')); ?></a>
                     <?php if ($contact_phone): ?>
                     <a href="tel:<?php echo esc_attr($contact_phone); ?>" class="listing-btn listing-btn-secondary">
                         <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
                             <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                         </svg>
-                        <?php _e('Call', 'travel-listings'); ?>
+                        <?php echo esc_html($this->translate('Call')); ?>
                     </a>
                     <?php endif; ?>
                 </div>
