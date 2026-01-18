@@ -272,8 +272,11 @@ class Travel_Listings {
      * Register Settings
      */
     public function register_settings() {
-        register_setting('travel_listings_settings', 'travel_listings_hero_title');
-        register_setting('travel_listings_settings', 'travel_listings_hero_subtitle');
+        // Register settings for each language
+        foreach ($this->languages as $code => $name) {
+            register_setting('travel_listings_settings', 'travel_listings_hero_title_' . $code);
+            register_setting('travel_listings_settings', 'travel_listings_hero_subtitle_' . $code);
+        }
         register_setting('travel_listings_settings', 'travel_listings_hero_image');
     }
     
@@ -281,46 +284,117 @@ class Travel_Listings {
      * Render Settings Page
      */
     public function render_settings_page() {
+        $flags = array(
+            'lv' => '🇱🇻',
+            'en' => '🇬🇧',
+            'ru' => '🇷🇺',
+        );
         ?>
         <div class="wrap">
             <h1><?php _e('Travel Listings - Hero Settings', 'travel-listings'); ?></h1>
-            
+
+            <style>
+                .hero-lang-tabs {
+                    display: flex;
+                    gap: 0;
+                    border-bottom: 2px solid #0073aa;
+                    margin: 20px 0;
+                }
+                .hero-lang-tab {
+                    padding: 12px 24px;
+                    cursor: pointer;
+                    background: #f0f0f0;
+                    border: 1px solid #ddd;
+                    border-bottom: none;
+                    border-radius: 4px 4px 0 0;
+                    font-weight: 500;
+                    color: #555;
+                    transition: all 0.2s;
+                    margin-right: 4px;
+                }
+                .hero-lang-tab:hover {
+                    background: #e0e0e0;
+                }
+                .hero-lang-tab.active {
+                    background: #0073aa;
+                    color: #fff;
+                    border-color: #0073aa;
+                }
+                .hero-lang-content {
+                    display: none;
+                    padding: 20px;
+                    background: #fff;
+                    border: 1px solid #ddd;
+                    border-top: none;
+                    margin-bottom: 20px;
+                }
+                .hero-lang-content.active {
+                    display: block;
+                }
+            </style>
+
             <form method="post" action="options.php">
                 <?php settings_fields('travel_listings_settings'); ?>
-                
+
+                <h2><?php _e('Hero Content (Multi-language)', 'travel-listings'); ?></h2>
+                <p class="description"><?php _e('Enter hero title and subtitle for each language.', 'travel-listings'); ?></p>
+
+                <div class="hero-lang-tabs">
+                    <?php $first = true; foreach ($this->languages as $code => $name): ?>
+                    <div class="hero-lang-tab <?php echo $first ? 'active' : ''; ?>" data-lang="<?php echo esc_attr($code); ?>">
+                        <?php echo $flags[$code]; ?> <?php echo esc_html($name); ?>
+                    </div>
+                    <?php $first = false; endforeach; ?>
+                </div>
+
+                <?php $first = true; foreach ($this->languages as $code => $name): ?>
+                <div class="hero-lang-content <?php echo $first ? 'active' : ''; ?>" data-lang="<?php echo esc_attr($code); ?>">
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="travel_listings_hero_title_<?php echo esc_attr($code); ?>">
+                                    <?php printf(__('Hero Title (%s)', 'travel-listings'), $name); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <input type="text"
+                                       id="travel_listings_hero_title_<?php echo esc_attr($code); ?>"
+                                       name="travel_listings_hero_title_<?php echo esc_attr($code); ?>"
+                                       value="<?php echo esc_attr(get_option('travel_listings_hero_title_' . $code)); ?>"
+                                       class="regular-text" style="width: 100%; max-width: 500px;"
+                                       placeholder="<?php printf(__('Enter title in %s...', 'travel-listings'), $name); ?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="travel_listings_hero_subtitle_<?php echo esc_attr($code); ?>">
+                                    <?php printf(__('Hero Subtitle (%s)', 'travel-listings'), $name); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <textarea id="travel_listings_hero_subtitle_<?php echo esc_attr($code); ?>"
+                                          name="travel_listings_hero_subtitle_<?php echo esc_attr($code); ?>"
+                                          rows="3" class="large-text" style="max-width: 500px;"
+                                          placeholder="<?php printf(__('Enter subtitle in %s...', 'travel-listings'), $name); ?>"><?php echo esc_textarea(get_option('travel_listings_hero_subtitle_' . $code)); ?></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <?php $first = false; endforeach; ?>
+
+                <h2><?php _e('Hero Background Image', 'travel-listings'); ?></h2>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="travel_listings_hero_title"><?php _e('Hero Title', 'travel-listings'); ?></label>
+                            <label for="travel_listings_hero_image"><?php _e('Background Image', 'travel-listings'); ?></label>
                         </th>
                         <td>
-                            <input type="text" id="travel_listings_hero_title" name="travel_listings_hero_title" 
-                                   value="<?php echo esc_attr(get_option('travel_listings_hero_title')); ?>" 
-                                   class="regular-text" style="width: 100%; max-width: 500px;">
-                            <p class="description"><?php _e('The main headline displayed on the hero section.', 'travel-listings'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="travel_listings_hero_subtitle"><?php _e('Hero Subtitle', 'travel-listings'); ?></label>
-                        </th>
-                        <td>
-                            <textarea id="travel_listings_hero_subtitle" name="travel_listings_hero_subtitle" 
-                                      rows="3" class="large-text" style="max-width: 500px;"><?php echo esc_textarea(get_option('travel_listings_hero_subtitle')); ?></textarea>
-                            <p class="description"><?php _e('A short description below the title.', 'travel-listings'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="travel_listings_hero_image"><?php _e('Hero Background Image', 'travel-listings'); ?></label>
-                        </th>
-                        <td>
-                            <input type="text" id="travel_listings_hero_image" name="travel_listings_hero_image" 
-                                   value="<?php echo esc_url(get_option('travel_listings_hero_image')); ?>" 
+                            <input type="text" id="travel_listings_hero_image" name="travel_listings_hero_image"
+                                   value="<?php echo esc_url(get_option('travel_listings_hero_image')); ?>"
                                    class="regular-text" style="width: 100%; max-width: 500px;">
                             <button type="button" class="button" id="upload_hero_image_button"><?php _e('Select Image', 'travel-listings'); ?></button>
                             <p class="description"><?php _e('URL of the background image. Use the "Select Image" button to choose from media library.', 'travel-listings'); ?></p>
-                            
+
                             <?php if (get_option('travel_listings_hero_image')): ?>
                             <div style="margin-top: 10px;">
                                 <img src="<?php echo esc_url(get_option('travel_listings_hero_image')); ?>" style="max-width: 300px; height: auto; border-radius: 8px;">
@@ -329,37 +403,44 @@ class Travel_Listings {
                         </td>
                     </tr>
                 </table>
-                
+
                 <?php submit_button(); ?>
             </form>
-            
+
             <hr>
-            
+
             <h2><?php _e('Usage', 'travel-listings'); ?></h2>
             <p><?php _e('Use this shortcode to display listings with the hero section:', 'travel-listings'); ?></p>
             <code style="display: block; padding: 15px; background: #f0f0f0; border-radius: 4px; margin: 10px 0;">[travel_listings]</code>
-            <p><?php _e('The hero settings above will be automatically applied.', 'travel-listings'); ?></p>
-            
-            <p><?php _e('Or override with shortcode attributes:', 'travel-listings'); ?></p>
-            <code style="display: block; padding: 15px; background: #f0f0f0; border-radius: 4px; margin: 10px 0;">[travel_listings hero_title="Your Title" hero_subtitle="Your subtitle" hero_image="https://example.com/image.jpg"]</code>
+            <p><?php _e('The hero settings above will be automatically applied based on the current language.', 'travel-listings'); ?></p>
         </div>
         
         <script>
         jQuery(document).ready(function($) {
+            // Language tabs for hero settings
+            $('.hero-lang-tab').on('click', function() {
+                var lang = $(this).data('lang');
+                $('.hero-lang-tab').removeClass('active');
+                $(this).addClass('active');
+                $('.hero-lang-content').removeClass('active');
+                $('.hero-lang-content[data-lang="' + lang + '"]').addClass('active');
+            });
+
+            // Media uploader for hero image
             $('#upload_hero_image_button').on('click', function(e) {
                 e.preventDefault();
-                
+
                 var mediaUploader = wp.media({
                     title: '<?php _e('Select Hero Image', 'travel-listings'); ?>',
                     button: { text: '<?php _e('Use this image', 'travel-listings'); ?>' },
                     multiple: false
                 });
-                
+
                 mediaUploader.on('select', function() {
                     var attachment = mediaUploader.state().get('selection').first().toJSON();
                     $('#travel_listings_hero_image').val(attachment.url);
                 });
-                
+
                 mediaUploader.open();
             });
         });
@@ -981,9 +1062,20 @@ class Travel_Listings {
      * Display Listings Shortcode
      */
     public function display_listings_shortcode($atts) {
-        // Get saved settings as defaults
-        $default_title = get_option('travel_listings_hero_title', '');
-        $default_subtitle = get_option('travel_listings_hero_subtitle', '');
+        // Get current language for hero content
+        $current_lang = $this->get_current_language();
+
+        // Get saved settings for current language (with fallback to default language)
+        $default_title = get_option('travel_listings_hero_title_' . $current_lang, '');
+        if (empty($default_title)) {
+            $default_title = get_option('travel_listings_hero_title_' . $this->default_language, '');
+        }
+
+        $default_subtitle = get_option('travel_listings_hero_subtitle_' . $current_lang, '');
+        if (empty($default_subtitle)) {
+            $default_subtitle = get_option('travel_listings_hero_subtitle_' . $this->default_language, '');
+        }
+
         $default_image = get_option('travel_listings_hero_image', '');
 
         $atts = shortcode_atts(array(
