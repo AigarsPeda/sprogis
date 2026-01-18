@@ -101,33 +101,91 @@ body.single-travel_listing hr {
     margin-bottom: 20px;
 }
 
-.travel-language-switcher {
-    display: flex;
-    gap: 8px;
+/* Language Switcher Dropdown */
+.travel-lang-dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-.travel-language-switcher .lang-btn {
-    padding: 8px 16px;
+.lang-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    text-decoration: none;
+    cursor: pointer;
     transition: all 0.2s ease;
     background: #f1f5f9;
     color: #475569;
     border: 1px solid #e2e8f0;
 }
 
-.travel-language-switcher .lang-btn:hover {
+.lang-dropdown-toggle:hover {
     background: #e2e8f0;
     color: #1e293b;
 }
 
-.travel-language-switcher .lang-btn.active {
+.lang-dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+
+.travel-lang-dropdown.open .lang-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 140px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.travel-lang-dropdown.open .lang-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #475569;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+
+.lang-dropdown-item:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.lang-dropdown-item.active {
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
-    border-color: transparent;
-    box-shadow: 0 2px 8px rgba(0, 119, 182, 0.3);
+}
+
+.lang-dropdown-item .lang-code {
+    font-weight: 600;
+    min-width: 24px;
+}
+
+.lang-dropdown-item .lang-name {
+    font-weight: 400;
 }
 
 .single-listing-title {
@@ -359,16 +417,20 @@ body.single-travel_listing hr {
 <article class="single-travel-listing">
     <header class="listing-header">
         <div class="listing-header-top">
-            <a href="javascript:history.back()" class="listing-back-link">
+            <?php
+            // Build back link with current language
+            $back_url = home_url('/');
+            if ($current_lang !== 'lv') {
+                $back_url = add_query_arg('lang', $current_lang, $back_url);
+            }
+            ?>
+            <a href="<?php echo esc_url($back_url); ?>" class="listing-back-link">
                 <svg viewBox="0 0 24 24" width="18" height="18">
                     <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
                 <?php _e('Back to listings', 'travel-listings'); ?>
             </a>
-            <div class="travel-language-switcher"><?php
-                $current_url = remove_query_arg('lang');
-                foreach ($languages as $code => $name):
-                ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div>
+            <div class="travel-language-switcher travel-lang-dropdown"><?php $current_url = remove_query_arg('lang'); ?><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div>
         </div>
         
         <h1 class="single-listing-title"><?php echo esc_html($listing_title); ?></h1>

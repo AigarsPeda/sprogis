@@ -82,14 +82,14 @@ class Travel_Listings {
     }
 
     /**
-     * Language switcher shortcode
+     * Language switcher shortcode (dropdown style)
      */
     public function language_switcher_shortcode($atts) {
         $current_lang = $this->get_current_language();
         $current_url = remove_query_arg('lang');
 
         ob_start();
-        ?><div class="travel-language-switcher"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div><?php
+        ?><div class="travel-language-switcher travel-lang-dropdown"><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div><?php
         return ob_get_clean();
     }
 
@@ -868,7 +868,7 @@ class Travel_Listings {
         <div class="travel-hero-wrapper">
             <section class="travel-hero-section" style="<?php echo esc_attr($hero_style); ?>">
                 <div class="travel-hero-overlay"></div>
-                <div class="travel-hero-language-switcher travel-language-switcher"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div>
+                <div class="travel-hero-language-switcher travel-language-switcher travel-lang-dropdown"><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div>
                 <div class="travel-hero-content">
                     <?php if (!empty($atts['hero_title'])): ?>
                     <h1 class="travel-hero-title"><?php echo esc_html($atts['hero_title']); ?></h1>

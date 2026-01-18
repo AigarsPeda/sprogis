@@ -7,7 +7,55 @@
   // Initialize when DOM is ready
   $(document).ready(function () {
     initTravelListings();
+    initLanguageDropdown();
   });
+
+  /**
+   * Initialize language dropdown functionality
+   */
+  function initLanguageDropdown() {
+    var $dropdowns = $(".travel-lang-dropdown");
+
+    if (!$dropdowns.length) {
+      return;
+    }
+
+    // Toggle dropdown on button click
+    $dropdowns.find(".lang-dropdown-toggle").on("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var $dropdown = $(this).closest(".travel-lang-dropdown");
+      var isOpen = $dropdown.hasClass("open");
+
+      // Close all other dropdowns
+      $dropdowns.not($dropdown).removeClass("open");
+      $dropdowns
+        .not($dropdown)
+        .find(".lang-dropdown-toggle")
+        .attr("aria-expanded", "false");
+
+      // Toggle current dropdown
+      $dropdown.toggleClass("open", !isOpen);
+      $(this).attr("aria-expanded", !isOpen);
+    });
+
+    // Close dropdown when clicking outside
+    $(document).on("click", function (e) {
+      if (!$(e.target).closest(".travel-lang-dropdown").length) {
+        $dropdowns.removeClass("open");
+        $dropdowns.find(".lang-dropdown-toggle").attr("aria-expanded", "false");
+      }
+    });
+
+    // Close dropdown on escape key
+    $(document).on("keydown", function (e) {
+      if (e.key === "Escape") {
+        $dropdowns.removeClass("open");
+        $dropdowns.find(".lang-dropdown-toggle").attr("aria-expanded", "false");
+      }
+    });
+  }
 
   function initTravelListings() {
     var $filterForm = $("#travel-filter-form");

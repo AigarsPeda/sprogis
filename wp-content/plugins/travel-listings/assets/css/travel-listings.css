@@ -1,35 +1,90 @@
 /* Travel Listings - Frontend Styles */
 
-/* Language Switcher */
-.travel-language-switcher {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    align-items: center;
+/* Language Switcher Dropdown */
+.travel-lang-dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-.travel-language-switcher .lang-btn {
-    padding: 8px 16px;
+.lang-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    text-decoration: none;
+    cursor: pointer;
     transition: all 0.2s ease;
     background: #f1f5f9;
     color: #475569;
     border: 1px solid #e2e8f0;
 }
 
-.travel-language-switcher .lang-btn:hover {
+.lang-dropdown-toggle:hover {
     background: #e2e8f0;
     color: #1e293b;
 }
 
-.travel-language-switcher .lang-btn.active {
+.lang-dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+
+.travel-lang-dropdown.open .lang-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+    position: absolute;
+    top: calc(100% - 10px);
+    right: 0;
+    min-width: 140px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.travel-lang-dropdown.open .lang-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #475569;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+
+.lang-dropdown-item:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.lang-dropdown-item.active {
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
-    border-color: transparent;
-    box-shadow: 0 2px 8px rgba(0, 119, 182, 0.3);
+}
+
+.lang-dropdown-item .lang-code {
+    font-weight: 600;
+    min-width: 24px;
+}
+
+.lang-dropdown-item .lang-name {
+    font-weight: 400;
 }
 
 /* Language switcher in hero */
@@ -40,32 +95,59 @@
     z-index: 10;
 }
 
-.travel-hero-language-switcher .lang-btn {
+.travel-hero-language-switcher .lang-dropdown-toggle {
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
 }
 
-.travel-hero-language-switcher .lang-btn:hover {
+.travel-hero-language-switcher .lang-dropdown-toggle:hover {
     background: rgba(255, 255, 255, 0.25);
     color: #fff;
 }
 
-.travel-hero-language-switcher .lang-btn.active {
-    background: #fff;
-    color: #0077b6;
-    border-color: #fff;
+.travel-hero-language-switcher .lang-dropdown-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.travel-hero-language-switcher .lang-dropdown-item {
+    color: #1e293b;
+}
+
+.travel-hero-language-switcher .lang-dropdown-item:hover {
+    background: rgba(0, 119, 182, 0.1);
+}
+
+.travel-hero-language-switcher .lang-dropdown-item.active {
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
-    .travel-language-switcher .lang-btn {
+    .lang-dropdown-toggle {
         background: #1e293b;
         color: #e2e8f0;
         border-color: #334155;
     }
 
-    .travel-language-switcher .lang-btn:hover {
+    .lang-dropdown-toggle:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+
+    .lang-dropdown-menu {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .lang-dropdown-item {
+        color: #e2e8f0;
+    }
+
+    .lang-dropdown-item:hover {
         background: #334155;
         color: #f1f5f9;
     }
