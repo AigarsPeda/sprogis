@@ -138,6 +138,41 @@
     color: #fff;
 }
 
+/* Dark mode for hero language switcher */
+@media (prefers-color-scheme: dark) {
+    .travel-hero-language-switcher .lang-dropdown-toggle {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+        backdrop-filter: none;
+    }
+
+    .travel-hero-language-switcher .lang-dropdown-toggle:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+
+    .travel-hero-language-switcher .lang-dropdown-menu {
+        background: #1e293b;
+        border-color: #334155;
+        backdrop-filter: none;
+    }
+
+    .travel-hero-language-switcher .lang-dropdown-item {
+        color: #e2e8f0;
+    }
+
+    .travel-hero-language-switcher .lang-dropdown-item:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+
+    .travel-hero-language-switcher .lang-dropdown-item.active {
+        background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+        color: #fff;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .lang-dropdown-toggle {
         background: #1e293b;
