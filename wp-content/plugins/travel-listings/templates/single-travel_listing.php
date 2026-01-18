@@ -5,9 +5,17 @@
 
 get_header();
 
+// Get Travel_Listings instance for language functions
+global $travel_listings_instance;
+if (!isset($travel_listings_instance)) {
+    $travel_listings_instance = new Travel_Listings();
+}
+$current_lang = $travel_listings_instance->get_current_language();
+$languages = $travel_listings_instance->get_languages();
+
 while (have_posts()) :
     the_post();
-    
+
     $post_id = get_the_ID();
     $date_from = get_post_meta($post_id, '_travel_date_from', true);
     $date_to = get_post_meta($post_id, '_travel_date_to', true);
@@ -17,6 +25,10 @@ while (have_posts()) :
     $contact_phone = get_post_meta($post_id, '_travel_contact_phone', true);
     $website_url = get_post_meta($post_id, '_travel_website_url', true);
     $categories = get_the_terms($post_id, 'listing_category');
+
+    // Get language-specific content
+    $listing_title = $travel_listings_instance->get_listing_title($post_id, $current_lang);
+    $description = $travel_listings_instance->get_listing_description($post_id, $current_lang);
 ?>
 
 <style>
@@ -80,6 +92,42 @@ body.single-travel_listing hr {
 
 .listing-back-link:hover {
     text-decoration: underline;
+}
+
+.listing-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.travel-language-switcher {
+    display: flex;
+    gap: 8px;
+}
+
+.travel-language-switcher .lang-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.travel-language-switcher .lang-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.travel-language-switcher .lang-btn.active {
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(0, 119, 182, 0.3);
 }
 
 .single-listing-title {
@@ -310,14 +358,20 @@ body.single-travel_listing hr {
 
 <article class="single-travel-listing">
     <header class="listing-header">
-        <a href="javascript:history.back()" class="listing-back-link">
-            <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            <?php _e('Back to listings', 'travel-listings'); ?>
-        </a>
+        <div class="listing-header-top">
+            <a href="javascript:history.back()" class="listing-back-link">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                <?php _e('Back to listings', 'travel-listings'); ?>
+            </a>
+            <div class="travel-language-switcher"><?php
+                $current_url = remove_query_arg('lang');
+                foreach ($languages as $code => $name):
+                ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div>
+        </div>
         
-        <h1 class="single-listing-title"><?php the_title(); ?></h1>
+        <h1 class="single-listing-title"><?php echo esc_html($listing_title); ?></h1>
         
         <div class="listing-header-meta">
             <?php if ($date_from || $date_to): ?>
@@ -366,7 +420,13 @@ body.single-travel_listing hr {
     
     <div class="listing-main-content">
         <div class="listing-description">
-            <?php the_content(); ?>
+            <?php
+            if (!empty($description)) {
+                echo wp_kses_post(wpautop($description));
+            } else {
+                the_content();
+            }
+            ?>
         </div>
         
         <aside class="listing-sidebar">

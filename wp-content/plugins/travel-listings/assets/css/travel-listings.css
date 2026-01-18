@@ -1,5 +1,76 @@
 /* Travel Listings - Frontend Styles */
 
+/* Language Switcher */
+.travel-language-switcher {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.travel-language-switcher .lang-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.travel-language-switcher .lang-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.travel-language-switcher .lang-btn.active {
+    background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(0, 119, 182, 0.3);
+}
+
+/* Language switcher in hero */
+.travel-hero-language-switcher {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.travel-hero-language-switcher .lang-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.travel-hero-language-switcher .lang-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+.travel-hero-language-switcher .lang-btn.active {
+    background: #fff;
+    color: #0077b6;
+    border-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .travel-language-switcher .lang-btn {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    .travel-language-switcher .lang-btn:hover {
+        background: #334155;
+        color: #f1f5f9;
+    }
+}
+
 /* Hide page meta and remove spacing when using travel listings */
 .page .entry-meta,
 .page .post-meta,

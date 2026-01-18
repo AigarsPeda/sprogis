@@ -12,9 +12,21 @@ if (!defined('ABSPATH')) {
 }
 
 class Travel_Listings {
-    
+
+    /**
+     * Supported languages: Latvian (default), English, Russian
+     */
+    private $languages = array(
+        'lv' => 'Latviešu',
+        'en' => 'English',
+        'ru' => 'Русский',
+    );
+
+    private $default_language = 'lv';
+
     public function __construct() {
         add_action('init', array($this, 'register_post_type'));
+        add_action('init', array($this, 'handle_language_switch'));
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         add_action('save_post', array($this, 'save_meta_boxes'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
@@ -33,12 +45,54 @@ class Travel_Listings {
         // Template loading
         add_filter('single_template', array($this, 'load_single_template'));
         add_filter('archive_template', array($this, 'load_archive_template'));
+
+        // Language switcher shortcode
+        add_shortcode('travel_language_switcher', array($this, 'language_switcher_shortcode'));
         
         // Admin settings page
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
     }
     
+    /**
+     * Handle language switch via URL parameter
+     */
+    public function handle_language_switch() {
+        if (isset($_GET['lang']) && array_key_exists($_GET['lang'], $this->languages)) {
+            setcookie('travel_listings_lang', sanitize_text_field($_GET['lang']), time() + (365 * 24 * 60 * 60), '/');
+            $_COOKIE['travel_listings_lang'] = sanitize_text_field($_GET['lang']);
+        }
+    }
+
+    /**
+     * Get current language
+     */
+    public function get_current_language() {
+        if (isset($_COOKIE['travel_listings_lang']) && array_key_exists($_COOKIE['travel_listings_lang'], $this->languages)) {
+            return $_COOKIE['travel_listings_lang'];
+        }
+        return $this->default_language;
+    }
+
+    /**
+     * Get all supported languages
+     */
+    public function get_languages() {
+        return $this->languages;
+    }
+
+    /**
+     * Language switcher shortcode
+     */
+    public function language_switcher_shortcode($atts) {
+        $current_lang = $this->get_current_language();
+        $current_url = remove_query_arg('lang');
+
+        ob_start();
+        ?><div class="travel-language-switcher"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div><?php
+        return ob_get_clean();
+    }
+
     /**
      * Add Settings Page
      */
@@ -216,7 +270,7 @@ class Travel_Listings {
             'hierarchical'        => false,
             'menu_position'       => 5,
             'menu_icon'           => 'dashicons-airplane',
-            'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+            'supports'            => array('title', 'thumbnail'),
             'show_in_rest'        => false,
         );
         
@@ -256,7 +310,16 @@ class Travel_Listings {
             'normal',
             'high'
         );
-        
+
+        add_meta_box(
+            'travel_listing_descriptions',
+            __('📝 Descriptions (Multi-language)', 'travel-listings'),
+            array($this, 'render_descriptions_meta_box'),
+            'travel_listing',
+            'normal',
+            'high'
+        );
+
         add_meta_box(
             'travel_listing_details',
             __('Listing Details', 'travel-listings'),
@@ -265,6 +328,221 @@ class Travel_Listings {
             'normal',
             'high'
         );
+    }
+
+    /**
+     * Render Multi-language Descriptions Meta Box
+     */
+    public function render_descriptions_meta_box($post) {
+        ?>
+        <style>
+            .travel-lang-tabs {
+                display: flex;
+                gap: 0;
+                border-bottom: 2px solid #0073aa;
+                margin-bottom: 20px;
+            }
+            .travel-lang-tab {
+                padding: 12px 24px;
+                cursor: pointer;
+                background: #f0f0f0;
+                border: 1px solid #ddd;
+                border-bottom: none;
+                border-radius: 4px 4px 0 0;
+                font-weight: 500;
+                color: #555;
+                transition: all 0.2s;
+            }
+            .travel-lang-tab:hover {
+                background: #e8e8e8;
+            }
+            .travel-lang-tab.active {
+                background: #0073aa;
+                color: #fff;
+                border-color: #0073aa;
+            }
+            .travel-lang-content {
+                display: none;
+                padding: 15px;
+                background: #f9f9f9;
+                border-radius: 0 0 8px 8px;
+            }
+            .travel-lang-content.active {
+                display: block;
+            }
+            .travel-lang-content > label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #1d2327;
+                font-size: 14px;
+            }
+            .lang-flag {
+                margin-right: 6px;
+            }
+            .travel-lang-content .wp-editor-wrap {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+        </style>
+
+        <div class="travel-lang-tabs">
+            <?php foreach ($this->languages as $code => $name): ?>
+                <div class="travel-lang-tab <?php echo $code === 'lv' ? 'active' : ''; ?>" data-lang="<?php echo esc_attr($code); ?>">
+                    <span class="lang-flag"><?php echo $this->get_lang_flag($code); ?></span>
+                    <?php echo esc_html($name); ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <?php foreach ($this->languages as $code => $name):
+            $title = get_post_meta($post->ID, '_travel_title_' . $code, true);
+            $description = get_post_meta($post->ID, '_travel_description_' . $code, true);
+            $excerpt = get_post_meta($post->ID, '_travel_excerpt_' . $code, true);
+            $editor_id = 'travel_description_' . $code;
+        ?>
+            <div class="travel-lang-content <?php echo $code === 'lv' ? 'active' : ''; ?>" data-lang="<?php echo esc_attr($code); ?>">
+                <div class="travel-title-field" style="margin-bottom: 20px;">
+                    <label for="travel_title_<?php echo esc_attr($code); ?>" style="display: block; font-weight: 600; margin-bottom: 8px; color: #1d2327; font-size: 14px;">
+                        <?php echo $this->get_lang_flag($code); ?>
+                        <?php printf(__('Title (%s)', 'travel-listings'), $name); ?>
+                    </label>
+                    <input
+                        type="text"
+                        id="travel_title_<?php echo esc_attr($code); ?>"
+                        name="travel_title_<?php echo esc_attr($code); ?>"
+                        value="<?php echo esc_attr($title); ?>"
+                        style="width: 100%; padding: 10px; border: 1px solid #8c8f94; border-radius: 4px; font-size: 16px; font-weight: 500;"
+                        placeholder="<?php printf(__('Enter title in %s...', 'travel-listings'), $name); ?>"
+                    >
+                </div>
+
+                <div class="travel-excerpt-field" style="margin-bottom: 20px;">
+                    <label for="travel_excerpt_<?php echo esc_attr($code); ?>" style="display: block; font-weight: 600; margin-bottom: 8px; color: #1d2327; font-size: 14px;">
+                        <?php echo $this->get_lang_flag($code); ?>
+                        <?php printf(__('Short Excerpt (%s)', 'travel-listings'), $name); ?>
+                    </label>
+                    <textarea
+                        id="travel_excerpt_<?php echo esc_attr($code); ?>"
+                        name="travel_excerpt_<?php echo esc_attr($code); ?>"
+                        rows="3"
+                        style="width: 100%; padding: 10px; border: 1px solid #8c8f94; border-radius: 4px; font-size: 14px;"
+                        placeholder="<?php printf(__('Short description for listing cards (%s)...', 'travel-listings'), $name); ?>"
+                    ><?php echo esc_textarea($excerpt); ?></textarea>
+                    <p class="description" style="margin-top: 5px; color: #646970; font-size: 13px;">
+                        <?php _e('This short text appears on listing cards in the grid view.', 'travel-listings'); ?>
+                    </p>
+                </div>
+
+                <label>
+                    <?php echo $this->get_lang_flag($code); ?>
+                    <?php printf(__('Full Description (%s)', 'travel-listings'), $name); ?>
+                </label>
+                <?php
+                wp_editor($description, $editor_id, array(
+                    'textarea_name' => $editor_id,
+                    'media_buttons' => true,
+                    'textarea_rows' => 15,
+                    'teeny'         => false,
+                    'quicktags'     => true,
+                    'tinymce'       => array(
+                        'toolbar1' => 'formatselect,bold,italic,underline,bullist,numlist,blockquote,alignleft,aligncenter,alignright,link,unlink,wp_more,spellchecker,fullscreen,wp_adv',
+                        'toolbar2' => 'strikethrough,hr,forecolor,pastetext,removeformat,charmap,outdent,indent,undo,redo,wp_help',
+                    ),
+                ));
+                ?>
+            </div>
+        <?php endforeach; ?>
+
+        <script>
+        jQuery(document).ready(function($) {
+            $('.travel-lang-tab').on('click', function() {
+                var lang = $(this).data('lang');
+                $('.travel-lang-tab').removeClass('active');
+                $(this).addClass('active');
+                $('.travel-lang-content').removeClass('active');
+                $('.travel-lang-content[data-lang="' + lang + '"]').addClass('active');
+
+                // Refresh TinyMCE editor when tab is shown
+                var editorId = 'travel_description_' + lang;
+                if (typeof tinymce !== 'undefined' && tinymce.get(editorId)) {
+                    tinymce.get(editorId).fire('focus');
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Get flag emoji for language code
+     */
+    private function get_lang_flag($code) {
+        $flags = array(
+            'lv' => '🇱🇻',
+            'en' => '🇬🇧',
+            'ru' => '🇷🇺',
+        );
+        return isset($flags[$code]) ? $flags[$code] : '';
+    }
+
+    /**
+     * Get title for current language (with fallback)
+     */
+    public function get_listing_title($post_id, $lang = null) {
+        if ($lang === null) {
+            $lang = $this->get_current_language();
+        }
+
+        $title = get_post_meta($post_id, '_travel_title_' . $lang, true);
+
+        // Fallback to default language if empty
+        if (empty($title) && $lang !== $this->default_language) {
+            $title = get_post_meta($post_id, '_travel_title_' . $this->default_language, true);
+        }
+
+        // Fallback to post title if still empty
+        if (empty($title)) {
+            $title = get_the_title($post_id);
+        }
+
+        return $title;
+    }
+
+    /**
+     * Get description for current language (with fallback)
+     */
+    public function get_listing_description($post_id, $lang = null) {
+        if ($lang === null) {
+            $lang = $this->get_current_language();
+        }
+
+        $description = get_post_meta($post_id, '_travel_description_' . $lang, true);
+
+        // Fallback to default language if empty
+        if (empty($description) && $lang !== $this->default_language) {
+            $description = get_post_meta($post_id, '_travel_description_' . $this->default_language, true);
+        }
+
+        return $description;
+    }
+
+    /**
+     * Get excerpt for current language (with fallback)
+     */
+    public function get_listing_excerpt($post_id, $lang = null) {
+        if ($lang === null) {
+            $lang = $this->get_current_language();
+        }
+
+        $excerpt = get_post_meta($post_id, '_travel_excerpt_' . $lang, true);
+
+        // Fallback to default language if empty
+        if (empty($excerpt) && $lang !== $this->default_language) {
+            $excerpt = get_post_meta($post_id, '_travel_excerpt_' . $this->default_language, true);
+        }
+
+        return $excerpt;
     }
     
     /**
@@ -417,6 +695,27 @@ class Travel_Listings {
         if (isset($_POST['travel_website_url'])) {
             update_post_meta($post_id, '_travel_website_url', esc_url_raw($_POST['travel_website_url']));
         }
+
+        // Save multi-language titles, descriptions and excerpts
+        foreach ($this->languages as $code => $name) {
+            // Save title
+            $title_field = 'travel_title_' . $code;
+            if (isset($_POST[$title_field])) {
+                update_post_meta($post_id, '_travel_title_' . $code, sanitize_text_field($_POST[$title_field]));
+            }
+
+            // Save description
+            $field_name = 'travel_description_' . $code;
+            if (isset($_POST[$field_name])) {
+                update_post_meta($post_id, '_travel_description_' . $code, wp_kses_post($_POST[$field_name]));
+            }
+
+            // Save excerpt
+            $excerpt_field = 'travel_excerpt_' . $code;
+            if (isset($_POST[$excerpt_field])) {
+                update_post_meta($post_id, '_travel_excerpt_' . $code, sanitize_textarea_field($_POST[$excerpt_field]));
+            }
+        }
     }
     
     /**
@@ -563,10 +862,13 @@ class Travel_Listings {
         if (!empty($atts['hero_image'])) {
             $hero_style = 'background-image: url(' . esc_url($atts['hero_image']) . ');';
         }
+        $current_lang = $this->get_current_language();
+        $current_url = remove_query_arg('lang');
         ?>
         <div class="travel-hero-wrapper">
             <section class="travel-hero-section" style="<?php echo esc_attr($hero_style); ?>">
                 <div class="travel-hero-overlay"></div>
+                <div class="travel-hero-language-switcher travel-language-switcher"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-btn <?php echo $current_lang === $code ? 'active' : ''; ?>"><?php echo esc_html(strtoupper($code)); ?></a><?php endforeach; ?></div>
                 <div class="travel-hero-content">
                     <?php if (!empty($atts['hero_title'])): ?>
                     <h1 class="travel-hero-title"><?php echo esc_html($atts['hero_title']); ?></h1>
@@ -586,18 +888,17 @@ class Travel_Listings {
     public function render_listings($atts, $ajax = false) {
         $paged = isset($atts['paged']) ? intval($atts['paged']) : 1;
 
-        $args = array(
-            'post_type'      => 'travel_listing',
-            'posts_per_page' => intval($atts['posts_per_page']),
-            'paged'          => $paged,
-            'post_status'    => 'publish',
-            'orderby'        => 'meta_value',
-            'meta_key'       => '_travel_date_from',
-            'order'          => 'ASC',
-            'meta_query'     => array(
-                'relation' => 'AND',
-            ),
-        );
+            $args = array(
+                'post_type'      => 'travel_listing',
+                'posts_per_page' => intval($atts['posts_per_page']),
+                'paged'          => $paged,
+                'post_status'    => 'publish',
+                'orderby'        => 'date', // Order by created date
+                'order'          => 'DESC', // Newest first
+                'meta_query'     => array(
+                    'relation' => 'AND',
+                ),
+            );
         
         // Filter by date from
         if (!empty($atts['date_from'])) {
@@ -802,7 +1103,7 @@ class Travel_Listings {
                 <?php endif; ?>
                 
                 <h3 class="listing-title">
-                    <a href="<?php echo get_permalink($post_id); ?>"><?php echo get_the_title($post_id); ?></a>
+                    <a href="<?php echo get_permalink($post_id); ?>"><?php echo esc_html($this->get_listing_title($post_id)); ?></a>
                 </h3>
                 
                 <div class="listing-meta">
@@ -842,9 +1143,12 @@ class Travel_Listings {
                     <?php endif; ?>
                 </div>
                 
-                <?php if (has_excerpt($post_id)): ?>
+                <?php
+                $listing_excerpt = $this->get_listing_excerpt($post_id);
+                if (!empty($listing_excerpt)):
+                ?>
                 <div class="listing-excerpt">
-                    <?php echo wp_trim_words(get_the_excerpt($post_id), 20); ?>
+                    <?php echo wp_trim_words(esc_html($listing_excerpt), 20); ?>
                 </div>
                 <?php endif; ?>
                 
@@ -1013,7 +1317,8 @@ class Travel_Listings {
 }
 
 // Initialize the plugin
-new Travel_Listings();
+global $travel_listings_instance;
+$travel_listings_instance = new Travel_Listings();
 
 // Activation hook
 register_activation_hook(__FILE__, 'travel_listings_activate');
