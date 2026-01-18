@@ -88,6 +88,7 @@ body.single-travel_listing hr {
     text-decoration: none;
     font-size: 14px;
     margin-bottom: 20px;
+    padding-top: 16px;
 }
 
 .listing-back-link:hover {
