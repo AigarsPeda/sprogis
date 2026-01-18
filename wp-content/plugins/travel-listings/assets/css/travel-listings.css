@@ -444,13 +444,23 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    align-items: stretch; /* Ensure all cards stretch to equal height */
+}
+
+/* Ensure cards fill full grid cell height */
+.travel-listings-grid .travel-listing-card {
+    height: 100%;
 }
 
 /* Hide empty paragraphs added by WordPress */
 .travel-listings-grid > p:empty,
 .travel-listings-grid > br,
 .travel-listings-wrapper > p:empty,
-.travel-listings-wrapper > br {
+.travel-listings-wrapper > br,
+.travel-listing-card p:empty,
+.listing-content p:empty,
+.listing-meta p:empty,
+.listing-content > br {
     display: none !important;
 }
 
@@ -518,9 +528,10 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 /* Listing Content */
 .listing-content {
     padding: 14px 16px 14px 16px;
-    flex-grow: 1;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0; /* Allow proper flex behavior */
 }
 
 /* Categories */
@@ -568,6 +579,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     margin-bottom: 10px;
     color: #64748b;
     font-size: 13px;
+    min-height: 72px; /* Fixed height for consistent spacing regardless of content */
 }
 
 .listing-dates,
@@ -603,11 +615,17 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     margin-bottom: 10px;
 }
 
+/* Spacer to push actions to bottom when excerpt is missing */
+.listing-meta + .listing-actions {
+    margin-top: auto;
+}
+
 /* Actions */
 .listing-actions {
     display: flex;
     gap: 8px;
     margin-top: auto;
+    padding-top: 10px;
 }
 
 .listing-btn {

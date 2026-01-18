@@ -1,0 +1,60 @@
+/*
+ * Travel Listings Card Spacing Fix
+ * Ensures consistent spacing and height for all travel listing cards
+ */
+
+/* Card container - ensure equal height cards */
+.travel-listing-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Listing content - flex container for consistent layout */
+.travel-listing-card .listing-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 14px 16px 14px 16px;
+}
+
+/* Meta section - fixed minimum height for consistent spacing */
+.travel-listing-card .listing-meta {
+  min-height: 72px; /* Space for 3 meta items (price, dates, location) */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+/* Individual meta items */
+.travel-listing-card .listing-price-meta,
+.travel-listing-card .listing-dates,
+.travel-listing-card .listing-location {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Excerpt - grows to fill available space */
+.travel-listing-card .listing-excerpt {
+  flex: 1;
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
+/* Actions - always at the bottom */
+.travel-listing-card .listing-actions {
+  margin-top: auto;
+}
+
+/* Ensure grid items stretch to equal heights */
+.travel-listings-grid {
+  display: grid;
+  align-items: stretch;
+}
+
+.travel-listings-grid .travel-listing-card {
+  height: 100%;
+}
