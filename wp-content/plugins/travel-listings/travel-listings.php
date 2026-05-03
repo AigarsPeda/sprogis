@@ -3,7 +3,7 @@
  * Plugin Name: Travel Listings
  * Description: A custom plugin to display travel/event listings with date range filtering
  * Version: 1.0.0
- * Author: Sprogis
+ * Author: A.Pēda
  * Text Domain: travel-listings
  */
 
