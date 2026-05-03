@@ -1516,12 +1516,19 @@ class Travel_Listings {
         $website_url = get_post_meta($post_id, '_travel_website_url', true);
 
         $categories = get_the_terms($post_id, 'listing_category');
+        $listing_title = $this->get_listing_title($post_id);
+        $listing_permalink = get_permalink($post_id);
 
         ?>
         <article class="travel-listing-card" data-id="<?php echo esc_attr($post_id); ?>">
+            <a
+                href="<?php echo esc_url($listing_permalink); ?>"
+                class="listing-card-link"
+                aria-label="<?php echo esc_attr(sprintf(__('View details for %s', 'travel-listings'), $listing_title)); ?>"
+            ></a>
             <?php if (has_post_thumbnail($post_id)): ?>
             <div class="listing-image">
-                <a href="<?php echo get_permalink($post_id); ?>">
+                <a href="<?php echo esc_url($listing_permalink); ?>">
                     <?php echo get_the_post_thumbnail($post_id, 'medium_large', array('class' => 'listing-thumbnail')); ?>
                 </a>
                 <?php if ($price && $price_on_image === '1'): ?>
@@ -1540,7 +1547,7 @@ class Travel_Listings {
                 <?php endif; ?>
                 
                 <h3 class="listing-title">
-                    <a href="<?php echo get_permalink($post_id); ?>"><?php echo esc_html($this->get_listing_title($post_id)); ?></a>
+                    <a href="<?php echo esc_url($listing_permalink); ?>"><?php echo esc_html($listing_title); ?></a>
                 </h3>
                 
                 <div class="listing-meta">
@@ -1590,7 +1597,7 @@ class Travel_Listings {
                 <?php endif; ?>
                 
                 <div class="listing-actions">
-                    <a href="<?php echo get_permalink($post_id); ?>" class="listing-btn listing-btn-primary"><?php echo esc_html($this->translate('View Details')); ?></a>
+                    <a href="<?php echo esc_url($listing_permalink); ?>" class="listing-btn listing-btn-primary"><?php echo esc_html($this->translate('View Details')); ?></a>
                     <?php if ($contact_phone): ?>
                     <a href="tel:<?php echo esc_attr($contact_phone); ?>" class="listing-btn listing-btn-secondary">
                         <svg class="icon" viewBox="0 0 24 24" width="16" height="16">

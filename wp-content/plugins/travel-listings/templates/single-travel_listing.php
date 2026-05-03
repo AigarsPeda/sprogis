@@ -24,7 +24,6 @@ while (have_posts()) :
     $contact_email = get_post_meta($post_id, '_travel_contact_email', true);
     $contact_phone = get_post_meta($post_id, '_travel_contact_phone', true);
     $website_url = get_post_meta($post_id, '_travel_website_url', true);
-    $categories = get_the_terms($post_id, 'listing_category');
 
     // Get language-specific content
     $listing_title = $travel_listings_instance->get_listing_title($post_id, $current_lang);
@@ -212,29 +211,6 @@ body.single-travel_listing hr {
 
 .listing-header-meta svg {
     color: #888;
-}
-
-.single-listing-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-}
-
-.single-listing-categories a {
-    background: #e8f4fd;
-    color: #0073aa;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.single-listing-categories a:hover {
-    background: #0073aa;
-    color: #fff;
 }
 
 .listing-featured-image {
@@ -466,13 +442,6 @@ body.single-travel_listing hr {
             <?php endif; ?>
         </div>
         
-        <?php if ($categories && !is_wp_error($categories)): ?>
-        <div class="single-listing-categories">
-            <?php foreach ($categories as $cat): ?>
-            <a href="<?php echo get_term_link($cat); ?>"><?php echo esc_html($cat->name); ?></a>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
     </header>
     
     <?php if (has_post_thumbnail()): ?>
@@ -583,15 +552,6 @@ body.single-travel_listing hr {
                         <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                     </svg>
                     <?php echo esc_html($travel_listings_instance->translate('Call Now')); ?>
-                </a>
-                <?php endif; ?>
-                
-                <?php if ($contact_email): ?>
-                <a href="mailto:<?php echo esc_attr($contact_email); ?>" class="contact-btn contact-btn-secondary">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                    </svg>
-                    <?php echo esc_html($travel_listings_instance->translate('Send Email')); ?>
                 </a>
                 <?php endif; ?>
                 

@@ -673,6 +673,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 /* Listing Card */
 .travel-listing-card {
+    position: relative;
     background: #ffffff;
     border-radius: 16px;
     overflow: hidden;
@@ -688,9 +689,29 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
+.travel-listing-card:focus-within {
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22), 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.listing-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.listing-card-link:focus {
+    outline: none;
+}
+
+.listing-card-link:focus-visible {
+    outline: none;
+}
+
 /* Listing Image */
 .listing-image {
     position: relative;
+    z-index: 2;
     overflow: hidden;
     aspect-ratio: 4 / 3;
     line-height: 0;
@@ -829,6 +850,8 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 /* Actions */
 .listing-actions {
+    position: relative;
+    z-index: 3;
     display: flex;
     gap: 8px;
     margin-top: auto;
