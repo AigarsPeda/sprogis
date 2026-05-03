@@ -167,6 +167,7 @@ class Travel_Listings {
 
     public function __construct() {
         add_action('init', array($this, 'register_post_type'));
+        add_action('init', array($this, 'register_blocks'));
         add_action('init', array($this, 'handle_language_switch'));
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         add_action('save_post', array($this, 'save_meta_boxes'));
@@ -193,6 +194,94 @@ class Travel_Listings {
         // Admin settings page
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
+    }
+
+    /**
+     * Register Gutenberg blocks for the editor.
+     */
+    public function register_blocks() {
+        if (!function_exists('register_block_type')) {
+            return;
+        }
+
+        wp_register_script(
+            'travel-listings-block',
+            plugin_dir_url(__FILE__) . 'assets/js/travel-listings-block.js',
+            array('wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render', 'wp-i18n'),
+            '1.0.0',
+            true
+        );
+
+        wp_register_style(
+            'travel-listings-style',
+            plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
+            array(),
+            '1.0.0'
+        );
+
+        register_block_type('travel-listings/listings', array(
+            'api_version'     => 2,
+            'editor_script'   => 'travel-listings-block',
+            'style'           => 'travel-listings-style',
+            'editor_style'    => 'travel-listings-style',
+            'render_callback' => array($this, 'render_listings_block'),
+            'attributes'      => array(
+                'postsPerPage' => array(
+                    'type'    => 'number',
+                    'default' => 12,
+                ),
+                'category' => array(
+                    'type'    => 'string',
+                    'default' => '',
+                ),
+                'showFilter' => array(
+                    'type'    => 'boolean',
+                    'default' => true,
+                ),
+                'showHero' => array(
+                    'type'    => 'boolean',
+                    'default' => true,
+                ),
+                'heroTitle' => array(
+                    'type'    => 'string',
+                    'default' => '',
+                ),
+                'heroSubtitle' => array(
+                    'type'    => 'string',
+                    'default' => '',
+                ),
+                'heroImage' => array(
+                    'type'    => 'string',
+                    'default' => '',
+                ),
+            ),
+        ));
+    }
+
+    /**
+     * Render the Travel Listings Gutenberg block.
+     */
+    public function render_listings_block($attributes) {
+        $shortcode_atts = array(
+            'posts_per_page' => isset($attributes['postsPerPage']) ? intval($attributes['postsPerPage']) : 12,
+            'category'       => isset($attributes['category']) ? sanitize_title($attributes['category']) : '',
+            'show_filter'    => !empty($attributes['showFilter']) ? 'yes' : 'no',
+            'show_hero'      => !empty($attributes['showHero']) ? 'yes' : 'no',
+        );
+
+        if (!empty($attributes['heroTitle'])) {
+            $shortcode_atts['hero_title'] = sanitize_text_field($attributes['heroTitle']);
+        }
+
+        if (!empty($attributes['heroSubtitle'])) {
+            $shortcode_atts['hero_subtitle'] = sanitize_text_field($attributes['heroSubtitle']);
+        }
+
+        if (!empty($attributes['heroImage'])) {
+            $shortcode_atts['hero_image'] = esc_url_raw($attributes['heroImage']);
+        }
+
+        return $this->display_listings_shortcode($shortcode_atts);
     }
     
     /**
@@ -964,6 +1053,13 @@ class Travel_Listings {
      * Enqueue Frontend Scripts and Styles
      */
     public function enqueue_scripts() {
+        wp_register_style(
+            'travel-listings-style',
+            plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
+            array(),
+            '1.0.0'
+        );
+
         wp_enqueue_style(
             'travel-listings-style',
             plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
