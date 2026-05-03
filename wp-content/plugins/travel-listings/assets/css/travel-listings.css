@@ -507,6 +507,54 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     min-width: 200px;
 }
 
+.featured-categories-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    margin: 8px 0 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.featured-category-chip {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: #cbd5e1;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    opacity: 0.78;
+}
+
+.featured-category-chip:hover {
+    color: #ffffff;
+    opacity: 1;
+}
+
+.featured-category-chip:focus-visible {
+    outline: none;
+    color: #ffffff;
+    opacity: 1;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.45);
+}
+
+.featured-category-chip.is-active {
+    color: #ffffff;
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
 .filter-btn {
     padding: 10px 20px;
     border: none;
@@ -906,6 +954,17 @@ a.listing-btn-primary {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    .featured-categories-row {
+        gap: 18px;
+        margin: 6px 0 18px;
+        padding: 0;
+    }
+
+    .featured-category-chip {
+        font-size: 18px;
+        padding: 5px 10px;
+    }
+
     .travel-listings-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 14px;
@@ -977,6 +1036,24 @@ a.listing-btn-primary {
         background: #334155;
         color: #f1f5f9;
         border-color: #475569;
+    }
+
+    .featured-categories-row {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    .featured-category-chip {
+        color: #cbd5e1;
+    }
+
+    .featured-category-chip:hover {
+        color: #f8fafc;
+    }
+
+    .featured-category-chip.is-active {
+        color: #ffffff;
     }
 
     .travel-listing-card {

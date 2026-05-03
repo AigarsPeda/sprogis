@@ -194,6 +194,12 @@ class Travel_Listings {
         // Admin settings page
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
+
+        // Category term meta
+        add_action('listing_category_add_form_fields', array($this, 'render_category_featured_add_field'));
+        add_action('listing_category_edit_form_fields', array($this, 'render_category_featured_edit_field'));
+        add_action('created_listing_category', array($this, 'save_category_featured_meta'));
+        add_action('edited_listing_category', array($this, 'save_category_featured_meta'));
     }
 
     /**
@@ -627,6 +633,71 @@ class Travel_Listings {
             'show_in_rest'      => true,
             'rewrite'           => array('slug' => 'listing-category'),
         ));
+    }
+
+    /**
+     * Render featured toggle on add category form.
+     */
+    public function render_category_featured_add_field() {
+        ?>
+        <div class="form-field term-featured-wrap">
+            <label for="travel_listing_featured_category"><?php _e('Featured category', 'travel-listings'); ?></label>
+            <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1">
+            <p><?php _e('Show this category as a quick filter below the main filters.', 'travel-listings'); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render featured toggle on edit category form.
+     */
+    public function render_category_featured_edit_field($term) {
+        $is_featured = get_term_meta($term->term_id, '_travel_featured_category', true);
+        ?>
+        <tr class="form-field term-featured-wrap">
+            <th scope="row">
+                <label for="travel_listing_featured_category"><?php _e('Featured category', 'travel-listings'); ?></label>
+            </th>
+            <td>
+                <label for="travel_listing_featured_category">
+                    <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1" <?php checked($is_featured, '1'); ?>>
+                    <?php _e('Show this category as a quick filter below the main filters.', 'travel-listings'); ?>
+                </label>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save featured category term meta.
+     */
+    public function save_category_featured_meta($term_id) {
+        if (!current_user_can('manage_categories')) {
+            return;
+        }
+
+        $is_featured = isset($_POST['travel_listing_featured_category']) ? '1' : '0';
+        update_term_meta($term_id, '_travel_featured_category', $is_featured);
+    }
+
+    /**
+     * Get featured categories for the quick filter row.
+     */
+    private function get_featured_categories() {
+        $terms = get_terms(array(
+            'taxonomy'   => 'listing_category',
+            'hide_empty' => true,
+            'meta_key'   => '_travel_featured_category',
+            'meta_value' => '1',
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ));
+
+        if (is_wp_error($terms)) {
+            return array();
+        }
+
+        return $terms;
     }
     
     /**
@@ -1236,6 +1307,7 @@ class Travel_Listings {
      */
     public function render_listings($atts, $ajax = false) {
         $paged = isset($atts['paged']) ? intval($atts['paged']) : 1;
+        $selected_category = isset($atts['category']) ? sanitize_title($atts['category']) : '';
 
             $args = array(
                 'post_type'      => 'travel_listing',
@@ -1326,6 +1398,7 @@ class Travel_Listings {
             'taxonomy'   => 'listing_category',
             'hide_empty' => true,
         ));
+        $featured_categories = $this->get_featured_categories();
         
         // Calculate total pages
         $total_posts = $listings->found_posts;
@@ -1360,7 +1433,7 @@ class Travel_Listings {
                                 <select id="filter-category" name="category" class="filter-input">
                                     <option value=""><?php echo esc_html($this->translate('All Categories')); ?></option>
                                     <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo esc_attr($cat->slug); ?>"><?php echo esc_html($cat->name); ?></option>
+                                    <option value="<?php echo esc_attr($cat->slug); ?>" <?php selected($selected_category, $cat->slug); ?>><?php echo esc_html($cat->name); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -1371,6 +1444,21 @@ class Travel_Listings {
                             </div>
                         </div>
                     </form>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($featured_categories)): ?>
+                <div class="featured-categories-row" aria-label="<?php esc_attr_e('Featured categories', 'travel-listings'); ?>">
+                    <?php foreach ($featured_categories as $featured_category): ?>
+                    <button
+                        type="button"
+                        class="featured-category-chip <?php echo $selected_category === $featured_category->slug ? 'is-active' : ''; ?>"
+                        data-category-slug="<?php echo esc_attr($featured_category->slug); ?>"
+                        aria-pressed="<?php echo $selected_category === $featured_category->slug ? 'true' : 'false'; ?>"
+                    >
+                        <?php echo esc_html($featured_category->name); ?>
+                    </button>
+                    <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
 

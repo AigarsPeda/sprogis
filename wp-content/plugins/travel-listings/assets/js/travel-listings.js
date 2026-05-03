@@ -61,6 +61,8 @@
     var $filterForm = $("#travel-filter-form");
     var $listingsContainer = $("#travel-listings-container");
     var $resetBtn = $("#reset-filter");
+    var $categorySelect = $filterForm.find('[name="category"]');
+    var $featuredCategoryChips = $(".featured-category-chip");
 
     // Infinite scroll state
     var isLoading = false;
@@ -83,16 +85,50 @@
       // Handle reset button
       $resetBtn.on("click", function () {
         $filterForm[0].reset();
+        syncFeaturedCategoryChips("");
         filterListings();
       });
 
       // Optional: Auto-filter on input change (debounced)
       var filterTimeout;
       $filterForm.find(".filter-input").on("change", function () {
+        if ($(this).attr("name") === "category") {
+          syncFeaturedCategoryChips($(this).val());
+        }
         clearTimeout(filterTimeout);
         filterTimeout = setTimeout(function () {
           filterListings();
         }, 300);
+      });
+
+      if ($featuredCategoryChips.length && $categorySelect.length) {
+        syncFeaturedCategoryChips($categorySelect.val());
+
+        $featuredCategoryChips.on("click", function () {
+          var selectedSlug = $(this).data("category-slug");
+          var nextValue = selectedSlug;
+
+          if ($(this).hasClass("is-active")) {
+            nextValue = "";
+          }
+
+          $categorySelect.val(nextValue);
+          syncFeaturedCategoryChips(nextValue);
+          filterListings();
+        });
+      }
+    }
+
+    function syncFeaturedCategoryChips(activeSlug) {
+      if (!$featuredCategoryChips.length) {
+        return;
+      }
+
+      $featuredCategoryChips.each(function () {
+        var $chip = $(this);
+        var isActive = activeSlug && $chip.data("category-slug") === activeSlug;
+        $chip.toggleClass("is-active", !!isActive);
+        $chip.attr("aria-pressed", isActive ? "true" : "false");
       });
     }
 
