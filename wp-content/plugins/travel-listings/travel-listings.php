@@ -699,7 +699,7 @@ class Travel_Listings {
 
         return $terms;
     }
-    
+
     /**
      * Add Meta Boxes for date fields
      */

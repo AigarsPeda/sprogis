@@ -512,7 +512,8 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 28px;
+    position: relative;
+    gap: 0;
     margin: 8px 0 24px;
     padding: 0;
     border: none;
@@ -523,17 +524,33 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .featured-category-chip {
     appearance: none;
+    position: relative;
     border: none;
     background: transparent;
-    color: #cbd5e1;
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 21px;
-    font-weight: 400;
+    color: rgba(226, 232, 240, 0.74);
+    border-radius: 0;
+    padding: 2px 0;
+    font-size: 20px;
+    font-weight: 300;
     line-height: 1;
     cursor: pointer;
-    transition: color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease, opacity 0.2s ease;
     opacity: 0.78;
+}
+
+.featured-category-chip + .featured-category-chip {
+    margin-left: 34px;
+}
+
+.featured-category-chip + .featured-category-chip::before {
+    content: "";
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    width: 1px;
+    height: 18px;
+    background: rgba(148, 163, 184, 0.28);
+    transform: translateY(-50%);
 }
 
 .featured-category-chip:hover {
@@ -545,14 +562,14 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     outline: none;
     color: #ffffff;
     opacity: 1;
-    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.45);
+    text-decoration: underline;
+    text-decoration-color: rgba(56, 189, 248, 0.7);
+    text-underline-offset: 8px;
 }
 
 .featured-category-chip.is-active {
-    color: #ffffff;
+    color: #38bdf8;
     opacity: 1;
-    background: rgba(255, 255, 255, 0.03);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .filter-btn {
@@ -962,7 +979,15 @@ a.listing-btn-primary {
 
     .featured-category-chip {
         font-size: 18px;
-        padding: 5px 10px;
+        padding: 2px 0;
+    }
+
+    .featured-category-chip + .featured-category-chip {
+        margin-left: 24px;
+    }
+
+    .featured-category-chip + .featured-category-chip::before {
+        left: -13px;
     }
 
     .travel-listings-grid {
@@ -1036,24 +1061,6 @@ a.listing-btn-primary {
         background: #334155;
         color: #f1f5f9;
         border-color: #475569;
-    }
-
-    .featured-categories-row {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-    }
-
-    .featured-category-chip {
-        color: #cbd5e1;
-    }
-
-    .featured-category-chip:hover {
-        color: #f8fafc;
-    }
-
-    .featured-category-chip.is-active {
-        color: #ffffff;
     }
 
     .travel-listing-card {
