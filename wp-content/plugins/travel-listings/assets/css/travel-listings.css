@@ -524,6 +524,8 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .featured-category-chip {
     appearance: none;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
     position: relative;
     border: none;
     background: transparent;
@@ -536,6 +538,20 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     cursor: pointer;
     transition: color 0.2s ease, opacity 0.2s ease;
     opacity: 0.78;
+}
+
+.featured-category-chip::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -8px;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.9);
+    opacity: 0;
+    transform: scaleX(0.6);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
 }
 
 .featured-category-chip + .featured-category-chip {
@@ -558,18 +574,32 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     opacity: 1;
 }
 
+.featured-category-chip:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 .featured-category-chip:focus-visible {
     outline: none;
     color: #ffffff;
     opacity: 1;
-    text-decoration: underline;
-    text-decoration-color: rgba(56, 189, 248, 0.7);
-    text-underline-offset: 8px;
+}
+
+.featured-category-chip:focus-visible::after {
+    opacity: 1;
+    transform: scaleX(1);
+    background: rgba(255, 255, 255, 0.92);
 }
 
 .featured-category-chip.is-active {
     color: #38bdf8;
     opacity: 1;
+}
+
+.featured-category-chip.is-active::after {
+    opacity: 1;
+    transform: scaleX(1);
+    background: rgba(56, 189, 248, 0.95);
 }
 
 .filter-btn {
