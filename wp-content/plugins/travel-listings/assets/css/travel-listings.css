@@ -673,13 +673,18 @@
 
 .travel-filter-variant-form__chips {
     position: relative;
-    display: inline-flex;
+    display: flex;
+    flex: 1 1 auto;
     align-items: center;
+    flex-wrap: nowrap;
+    min-width: 0;
     gap: 30px;
+    width: 100%;
     max-width: 100%;
     padding: 2px 0 12px;
     overflow-x: auto;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     justify-content: flex-start;
 }
@@ -812,6 +817,7 @@
     flex: 1;
     display: flex;
     align-items: center;
+    overflow: hidden;
 }
 
 .travel-filter-advanced__summary-right {
@@ -1059,7 +1065,7 @@
     }
 
     .travel-filter-advanced__summary {
-        padding: 14px;
+        padding: 10px 14px;
     }
 
     .travel-filter-advanced__summary-right {
