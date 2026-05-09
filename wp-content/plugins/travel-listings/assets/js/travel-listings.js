@@ -58,11 +58,12 @@
   }
 
   function initTravelListings() {
-    var $filterForm = $("#travel-filter-form");
+    var $filterForms = $('[data-filter-form], #travel-filter-form');
     var $listingsContainer = $("#travel-listings-container");
-    var $resetBtn = $("#reset-filter");
-    var $categorySelect = $filterForm.find('[name="category"]');
-    var $featuredCategoryChips = $(".featured-category-chip");
+    var $categoryChips = $(".featured-category-chip, .travel-filter-chip");
+    var $advancedFilters = $(".travel-filter-advanced");
+    var $quickFilterRows = $(".travel-filter-variant-form__chips");
+    var filterState = getEmptyFilterState();
 
     // Infinite scroll state
     var isLoading = false;
@@ -75,72 +76,282 @@
       return;
     }
 
-    // Handle form submission
-    if ($filterForm.length) {
-      $filterForm.on("submit", function (e) {
+    if ($filterForms.length) {
+      filterState = getFormValues($filterForms.first());
+      syncAllForms(filterState);
+      initAdvancedFilterToggles();
+      initQuickFilterIndicators();
+
+      $filterForms.on("submit", function (e) {
         e.preventDefault();
+        filterState = getFormValues($(this));
+        syncAllForms(filterState);
         filterListings();
       });
 
-      // Handle reset button
-      $resetBtn.on("click", function () {
-        $filterForm[0].reset();
-        syncFeaturedCategoryChips("");
+      $(document).on("click", ".travel-filter-reset, #reset-filter", function () {
+        filterState = getEmptyFilterState();
+        syncAllForms(filterState);
         filterListings();
       });
 
-      // Optional: Auto-filter on input change (debounced)
       var filterTimeout;
-      $filterForm.find(".filter-input").on("change", function () {
-        if ($(this).attr("name") === "category") {
-          syncFeaturedCategoryChips($(this).val());
-        }
+      $filterForms.find(".filter-input").on("change", function () {
+        filterState = getFormValues($(this).closest("form"));
+        syncAllForms(filterState);
         clearTimeout(filterTimeout);
         filterTimeout = setTimeout(function () {
           filterListings();
         }, 300);
       });
 
-      if ($featuredCategoryChips.length && $categorySelect.length) {
-        syncFeaturedCategoryChips($categorySelect.val());
-
-        $featuredCategoryChips.on("click", function () {
+      if ($categoryChips.length) {
+        $categoryChips.on("click", function () {
+          var isResetChip = $(this).data("reset-filters");
           var selectedSlug = $(this).data("category-slug");
+
+          if (isResetChip) {
+            filterState = getEmptyFilterState();
+            syncAllForms(filterState);
+            filterListings();
+            return;
+          }
+
           var nextValue = selectedSlug;
 
           if ($(this).hasClass("is-active")) {
             nextValue = "";
           }
 
-          $categorySelect.val(nextValue);
-          syncFeaturedCategoryChips(nextValue);
+          filterState.category = nextValue;
+          syncAllForms(filterState);
           filterListings();
         });
       }
     }
 
-    function syncFeaturedCategoryChips(activeSlug) {
-      if (!$featuredCategoryChips.length) {
+    function initAdvancedFilterToggles() {
+      if (!$advancedFilters.length) {
         return;
       }
 
-      $featuredCategoryChips.each(function () {
+      var mobileQuery = window.matchMedia("(max-width: 640px)");
+
+      function applyResponsiveDefault(force) {
+        $advancedFilters.each(function () {
+          var $details = $(this);
+
+          if (!force && $details.data("userToggled")) {
+            return;
+          }
+
+          $details.prop("open", !mobileQuery.matches);
+          syncAdvancedToggleState($details);
+        });
+      }
+
+      $advancedFilters.each(function () {
+        syncAdvancedToggleState($(this));
+      });
+
+      $(document).on(
+        "click",
+        ".travel-filter-advanced__summary",
+        function (event) {
+          if ($(event.target).closest(".travel-filter-advanced__toggle").length) {
+            return;
+          }
+
+          event.preventDefault();
+        }
+      );
+
+      $(document).on(
+        "click",
+        ".travel-filter-advanced__toggle",
+        function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          var $details = $(this).closest(".travel-filter-advanced");
+          var nextOpen = !$details.prop("open");
+
+          $details.data("userToggled", true);
+          $details.prop("open", nextOpen);
+          syncAdvancedToggleState($details);
+        }
+      );
+
+      $advancedFilters.on("toggle", function () {
+        syncAdvancedToggleState($(this));
+      });
+
+      if (typeof mobileQuery.addEventListener === "function") {
+        mobileQuery.addEventListener("change", function () {
+          applyResponsiveDefault(false);
+        });
+      } else if (typeof mobileQuery.addListener === "function") {
+        mobileQuery.addListener(function () {
+          applyResponsiveDefault(false);
+        });
+      }
+
+      applyResponsiveDefault(true);
+    }
+
+    function initQuickFilterIndicators() {
+      if (!$quickFilterRows.length) {
+        return;
+      }
+
+      function refreshIndicators() {
+        $quickFilterRows.each(function () {
+          syncQuickFilterIndicator($(this));
+        });
+      }
+
+      refreshIndicators();
+
+      $(window).on("resize", function () {
+        refreshIndicators();
+      });
+
+      $quickFilterRows.on("scroll", function () {
+        syncQuickFilterIndicator($(this));
+      });
+    }
+
+    function syncAdvancedToggleState($details) {
+      var isOpen = $details.prop("open");
+      var $toggle = $details.find(".travel-filter-advanced__toggle").first();
+
+      if ($toggle.length) {
+        $toggle.attr("aria-expanded", isOpen ? "true" : "false");
+      }
+    }
+
+    function getEmptyFilterState() {
+      return {
+        date_from: "",
+        date_to: "",
+        price_from: "",
+        price_to: "",
+        category: "",
+      };
+    }
+
+    function getFormValues($form) {
+      if (!$form.length) {
+        return getEmptyFilterState();
+      }
+
+      return {
+        date_from: $form.find('[name="date_from"]').first().val() || "",
+        date_to: $form.find('[name="date_to"]').first().val() || "",
+        price_from: $form.find('[name="price_from"]').first().val() || "",
+        price_to: $form.find('[name="price_to"]').first().val() || "",
+        category: $form.find('[name="category"]').first().val() || "",
+      };
+    }
+
+    function setFormValues($form, values) {
+      if (!$form.length) {
+        return;
+      }
+
+      setFieldValue($form, "date_from", values.date_from);
+      setFieldValue($form, "date_to", values.date_to);
+      setFieldValue($form, "price_from", values.price_from);
+      setFieldValue($form, "price_to", values.price_to);
+      setFieldValue($form, "category", values.category);
+    }
+
+    function setFieldValue($form, fieldName, value) {
+      var $field = $form.find('[name="' + fieldName + '"]').first();
+
+      if ($field.length) {
+        $field.val(value);
+      }
+    }
+
+    function syncAllForms(values) {
+      $filterForms.each(function () {
+        setFormValues($(this), values);
+      });
+
+      syncCategoryChips(values);
+
+      $quickFilterRows.each(function () {
+        syncQuickFilterIndicator($(this));
+      });
+    }
+
+    function syncCategoryChips(values) {
+      if (!$categoryChips.length) {
+        return;
+      }
+
+      var hasFilters = hasActiveFilters(values);
+
+      $categoryChips.each(function () {
         var $chip = $(this);
-        var isActive = activeSlug && $chip.data("category-slug") === activeSlug;
-        $chip.toggleClass("is-active", !!isActive);
+        var isResetChip = !!$chip.data("reset-filters");
+        var isActive = false;
+
+        if (isResetChip) {
+          isActive = !hasFilters;
+        } else {
+          isActive =
+            !!values.category &&
+            $chip.data("category-slug") === values.category;
+        }
+
+        $chip.toggleClass("is-active", isActive);
         $chip.attr("aria-pressed", isActive ? "true" : "false");
       });
+    }
+
+    function syncQuickFilterIndicator($row) {
+      if (!$row.length) {
+        return;
+      }
+
+      var $indicator = $row.find(".travel-filter-variant-form__chips-indicator");
+      var $activeChip = $row.find(".travel-filter-chip.is-active").first();
+
+      if (!$indicator.length || !$activeChip.length) {
+        return;
+      }
+
+      var left = $activeChip.position().left;
+      var width = $activeChip.outerWidth();
+
+      $indicator.css({
+        width: width + "px",
+        transform: "translateX(" + left + "px)",
+        opacity: 1,
+      });
+    }
+
+    function hasActiveFilters(values) {
+      return !!(
+        values.date_from ||
+        values.date_to ||
+        values.price_from ||
+        values.price_to ||
+        values.category
+      );
     }
 
     function filterListings() {
       var formData = {
         action: "filter_travel_listings",
         nonce: travelListings.nonce,
-        date_from: $filterForm.find('[name="date_from"]').val(),
-        date_to: $filterForm.find('[name="date_to"]').val(),
-        price_from: $filterForm.find('[name="price_from"]').val(),
-        price_to: $filterForm.find('[name="price_to"]').val(),
-        category: $filterForm.find('[name="category"]').val(),
+        date_from: filterState.date_from,
+        date_to: filterState.date_to,
+        price_from: filterState.price_from,
+        price_to: filterState.price_to,
+        category: filterState.category,
         posts_per_page: postsPerPage,
       };
 
@@ -216,13 +427,12 @@
         posts_per_page: postsPerPage,
       };
 
-      // Include filter values if filter form exists
-      if ($filterForm.length) {
-        formData.date_from = $filterForm.find('[name="date_from"]').val();
-        formData.date_to = $filterForm.find('[name="date_to"]').val();
-        formData.price_from = $filterForm.find('[name="price_from"]').val();
-        formData.price_to = $filterForm.find('[name="price_to"]').val();
-        formData.category = $filterForm.find('[name="category"]').val();
+      if ($filterForms.length) {
+        formData.date_from = filterState.date_from;
+        formData.date_to = filterState.date_to;
+        formData.price_from = filterState.price_from;
+        formData.price_to = filterState.price_to;
+        formData.category = filterState.category;
       }
 
       $.ajax({

@@ -58,6 +58,11 @@ class Travel_Listings {
             'en' => 'All Categories',
             'ru' => 'Все категории',
         ),
+        'All' => array(
+            'lv' => 'Viss',
+            'en' => 'All',
+            'ru' => 'Все',
+        ),
         'Filter' => array(
             'lv' => 'Filtrēt',
             'en' => 'Filter',
@@ -203,6 +208,19 @@ class Travel_Listings {
     }
 
     /**
+     * Use file modification times so local CSS/JS changes show up immediately.
+     */
+    private function get_asset_version($relative_path) {
+        $asset_path = plugin_dir_path(__FILE__) . ltrim($relative_path, '/');
+
+        if (file_exists($asset_path)) {
+            return (string) filemtime($asset_path);
+        }
+
+        return '1.0.0';
+    }
+
+    /**
      * Register Gutenberg blocks for the editor.
      */
     public function register_blocks() {
@@ -214,7 +232,7 @@ class Travel_Listings {
             'travel-listings-block',
             plugin_dir_url(__FILE__) . 'assets/js/travel-listings-block.js',
             array('wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render', 'wp-i18n'),
-            '1.0.0',
+            $this->get_asset_version('assets/js/travel-listings-block.js'),
             true
         );
 
@@ -222,7 +240,7 @@ class Travel_Listings {
             'travel-listings-style',
             plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
             array(),
-            '1.0.0'
+            $this->get_asset_version('assets/css/travel-listings.css')
         );
 
         register_block_type('travel-listings/listings', array(
@@ -1128,21 +1146,21 @@ class Travel_Listings {
             'travel-listings-style',
             plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
             array(),
-            '1.0.0'
+            $this->get_asset_version('assets/css/travel-listings.css')
         );
 
         wp_enqueue_style(
             'travel-listings-style',
             plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
             array(),
-            '1.0.0'
+            $this->get_asset_version('assets/css/travel-listings.css')
         );
         
         wp_enqueue_script(
             'travel-listings-script',
             plugin_dir_url(__FILE__) . 'assets/js/travel-listings.js',
             array('jquery'),
-            '1.0.0',
+            $this->get_asset_version('assets/js/travel-listings.js'),
             true
         );
         
@@ -1164,7 +1182,7 @@ class Travel_Listings {
                 'travel-listings-admin-style',
                 plugin_dir_url(__FILE__) . 'assets/css/admin.css',
                 array(),
-                '1.0.0'
+                $this->get_asset_version('assets/css/admin.css')
             );
         }
         
@@ -1257,9 +1275,14 @@ class Travel_Listings {
 
         ob_start();
 
-        // Render hero section if enabled and title or image is provided
-        if ($atts['show_hero'] === 'yes' && (!empty($atts['hero_title']) || !empty($atts['hero_image']))) {
-            $this->render_hero_section($atts);
+        $show_filter_lab = $atts['show_hero'] === 'yes' && (!empty($atts['hero_title']) || !empty($atts['hero_image']));
+
+        if ($show_filter_lab) {
+            $this->render_filter_variant_gallery($atts);
+            $atts['show_filter'] = 'no';
+            $atts['show_featured_categories'] = 'no';
+        } else {
+            $atts['show_featured_categories'] = 'yes';
         }
 
         $this->render_listings($atts);
@@ -1272,6 +1295,194 @@ class Travel_Listings {
         $output = preg_replace('/<br\s*\/?>\s*(?=<)/', '', $output);
 
         return $output;
+    }
+
+    /**
+     * Build quick-filter labels used in the concept gallery.
+     */
+    private function get_preview_filter_labels() {
+        $featured_categories = $this->get_featured_categories();
+        $labels = array();
+
+        if (!empty($featured_categories)) {
+            foreach ($featured_categories as $featured_category) {
+                $labels[] = array(
+                    'label' => $featured_category->name,
+                    'slug'  => $featured_category->slug,
+                );
+            }
+        }
+
+        if (empty($labels)) {
+            $categories = get_terms(array(
+                'taxonomy'   => 'listing_category',
+                'hide_empty' => true,
+                'number'     => 3,
+            ));
+
+            if (!empty($categories) && !is_wp_error($categories)) {
+                foreach ($categories as $category) {
+                    $labels[] = array(
+                        'label' => $category->name,
+                        'slug'  => $category->slug,
+                    );
+                }
+            }
+        }
+
+        if (empty($labels)) {
+            $labels = array(
+                array(
+                    'label' => __('Opera', 'travel-listings'),
+                    'slug'  => 'opera',
+                ),
+                array(
+                    'label' => __('Sports', 'travel-listings'),
+                    'slug'  => 'sports',
+                ),
+                array(
+                    'label' => __('Weekend', 'travel-listings'),
+                    'slug'  => 'weekend',
+                ),
+            );
+        }
+
+        return array_slice($labels, 0, 3);
+    }
+
+    /**
+     * Render concept gallery for comparing filter UX directions.
+     */
+    public function render_filter_variant_gallery($atts) {
+        $categories = get_terms(array(
+            'taxonomy'   => 'listing_category',
+            'hide_empty' => true,
+        ));
+        $quick_filters = $this->get_preview_filter_labels();
+        $selected_category = isset($atts['category']) ? sanitize_title($atts['category']) : '';
+        $hero_style = '';
+        $current_lang = $this->get_current_language();
+        $current_url = remove_query_arg('lang');
+
+        if (!empty($quick_filters)) {
+            array_unshift($quick_filters, array(
+                'label' => $this->translate('All'),
+                'slug'  => '',
+                'reset' => true,
+            ));
+        }
+
+        if (!empty($atts['hero_image'])) {
+            $hero_style = sprintf('--travel-filter-hero-image: url(%s);', esc_url($atts['hero_image']));
+        }
+
+        $variants = array(
+            array(
+                'slug' => 'rail',
+                'summary' => __('More filters', 'travel-listings'),
+                'open' => false,
+            ),
+        );
+        ?>
+        <div class="travel-hero-wrapper">
+        <section class="travel-filter-lab" <?php echo $hero_style !== '' ? 'style="' . esc_attr($hero_style) . '"' : ''; ?>>
+            <div class="travel-filter-lab__stack">
+                <?php foreach ($variants as $index => $variant): ?>
+                    <?php $field_suffix = 'variant-' . ($index + 1); ?>
+                    <section class="travel-filter-variant travel-filter-variant--<?php echo esc_attr($variant['slug']); ?>">
+                        <form class="travel-filter-variant-form travel-filter-variant-form--<?php echo esc_attr($variant['slug']); ?>" data-filter-form data-variant="<?php echo esc_attr($variant['slug']); ?>">
+                            <div class="travel-filter-variant-form__hero">
+                                <div class="travel-hero-language-switcher travel-language-switcher travel-lang-dropdown"><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div>
+                                <div class="travel-filter-variant-form__hero-copy">
+                                    <strong class="travel-filter-variant-form__hero-title"><?php echo esc_html($atts['hero_title']); ?></strong>
+                                    <?php if (!empty($atts['hero_subtitle'])): ?>
+                                        <p class="travel-filter-variant-form__hero-text"><?php echo esc_html($atts['hero_subtitle']); ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="travel-filter-variant-form__body">
+                                <div class="travel-filter-shell">
+                                    <details class="travel-filter-advanced travel-filter-advanced--<?php echo esc_attr($variant['slug']); ?>" <?php echo $variant['open'] ? 'open' : ''; ?>>
+                                        <summary class="travel-filter-advanced__summary">
+                                            <span class="travel-filter-advanced__summary-left">
+                                                <span class="travel-filter-variant-form__chips" aria-label="<?php esc_attr_e('Quick filters', 'travel-listings'); ?>">
+                                                    <?php foreach ($quick_filters as $chip): ?>
+                                                        <button
+                                                            type="button"
+                                                            class="travel-filter-chip <?php echo empty($chip['slug']) ? 'travel-filter-chip--all ' : ''; ?><?php echo empty($chip['slug']) ? ($selected_category === '' ? 'is-active' : '') : ($selected_category === $chip['slug'] ? 'is-active' : ''); ?>"
+                                                            data-category-slug="<?php echo esc_attr($chip['slug']); ?>"
+                                                            <?php echo !empty($chip['reset']) ? 'data-reset-filters="true"' : ''; ?>
+                                                            aria-pressed="<?php echo empty($chip['slug']) ? ($selected_category === '' ? 'true' : 'false') : ($selected_category === $chip['slug'] ? 'true' : 'false'); ?>"
+                                                        >
+                                                            <?php echo esc_html($chip['label']); ?>
+                                                        </button>
+                                                    <?php endforeach; ?>
+                                                    <span class="travel-filter-variant-form__chips-indicator" aria-hidden="true"></span>
+                                                </span>
+                                            </span>
+                                            <span class="travel-filter-advanced__summary-right">
+                                                <span class="travel-filter-advanced__summary-label"><?php echo esc_html($variant['summary']); ?></span>
+                                                <button
+                                                    type="button"
+                                                    class="travel-filter-advanced__toggle"
+                                                    aria-expanded="<?php echo $variant['open'] ? 'true' : 'false'; ?>"
+                                                    aria-label="<?php esc_attr_e('Toggle filters', 'travel-listings'); ?>"
+                                                >
+                                                    <svg class="travel-filter-advanced__toggle-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                        <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/>
+                                                    </svg>
+                                                </button>
+                                            </span>
+                                        </summary>
+
+                                        <div class="travel-filter-advanced__content">
+                                            <div class="travel-filter-advanced__grid">
+                                                <div class="filter-group">
+                                                    <label for="filter-date-from-<?php echo esc_attr($field_suffix); ?>"><?php echo esc_html($this->translate('Date From')); ?></label>
+                                                    <input type="date" id="filter-date-from-<?php echo esc_attr($field_suffix); ?>" name="date_from" class="filter-input" value="">
+                                                </div>
+                                                <div class="filter-group">
+                                                    <label for="filter-date-to-<?php echo esc_attr($field_suffix); ?>"><?php echo esc_html($this->translate('Date To')); ?></label>
+                                                    <input type="date" id="filter-date-to-<?php echo esc_attr($field_suffix); ?>" name="date_to" class="filter-input" value="">
+                                                </div>
+                                                <div class="filter-group">
+                                                    <label for="filter-price-from-<?php echo esc_attr($field_suffix); ?>"><?php echo esc_html($this->translate('Price From')); ?></label>
+                                                    <input type="number" id="filter-price-from-<?php echo esc_attr($field_suffix); ?>" name="price_from" class="filter-input" min="0" step="0.01" placeholder="€">
+                                                </div>
+                                                <div class="filter-group">
+                                                    <label for="filter-price-to-<?php echo esc_attr($field_suffix); ?>"><?php echo esc_html($this->translate('Price To')); ?></label>
+                                                    <input type="number" id="filter-price-to-<?php echo esc_attr($field_suffix); ?>" name="price_to" class="filter-input" min="0" step="0.01" placeholder="€">
+                                                </div>
+                                                <?php if (!empty($categories) && !is_wp_error($categories)): ?>
+                                                <div class="filter-group travel-filter-advanced__category">
+                                                    <label for="filter-category-<?php echo esc_attr($field_suffix); ?>"><?php echo esc_html($this->translate('Category')); ?></label>
+                                                    <select id="filter-category-<?php echo esc_attr($field_suffix); ?>" name="category" class="filter-input">
+                                                        <option value=""><?php echo esc_html($this->translate('All Categories')); ?></option>
+                                                        <?php foreach ($categories as $cat): ?>
+                                                        <option value="<?php echo esc_attr($cat->slug); ?>" <?php selected($selected_category, $cat->slug); ?>><?php echo esc_html($cat->name); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <?php else: ?>
+                                                <input type="hidden" name="category" value="<?php echo esc_attr($selected_category); ?>">
+                                                <?php endif; ?>
+                                                <div class="travel-filter-advanced__actions">
+                                                    <button type="submit" class="filter-btn filter-btn-primary"><?php echo esc_html($this->translate('Filter')); ?></button>
+                                                    <button type="button" class="filter-btn filter-btn-secondary travel-filter-reset"><?php echo esc_html($this->translate('Reset')); ?></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        </div>
+        <?php
     }
     
     /**
@@ -1447,7 +1658,7 @@ class Travel_Listings {
                 </div>
                 <?php endif; ?>
 
-                <?php if (!empty($featured_categories)): ?>
+                <?php if (($atts['show_featured_categories'] ?? 'yes') === 'yes' && !empty($featured_categories)): ?>
                 <div class="featured-categories-row" aria-label="<?php esc_attr_e('Featured categories', 'travel-listings'); ?>">
                     <?php foreach ($featured_categories as $featured_category): ?>
                     <button
