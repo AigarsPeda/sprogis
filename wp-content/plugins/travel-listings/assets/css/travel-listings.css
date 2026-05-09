@@ -453,7 +453,7 @@
 
 @media (max-width: 640px) {
     .travel-filter-lab {
-        padding: 18px 12px 8px;
+        padding: 0;
     }
 
     .travel-filter-variant {
@@ -1034,7 +1034,7 @@
 
     .travel-filter-variant-form__hero {
         min-height: 340px;
-        padding: 16px;
+        padding: 0;
         align-items: center;
         justify-content: center;
     }
