@@ -63,6 +63,9 @@
     var $categoryChips = $(".featured-category-chip, .travel-filter-chip");
     var $advancedFilters = $(".travel-filter-advanced");
     var $quickFilterRows = $(".travel-filter-variant-form__chips");
+    var prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
     var filterState = getEmptyFilterState();
 
     // Infinite scroll state
@@ -136,7 +139,6 @@
       }
 
       var mobileQuery = window.matchMedia("(max-width: 640px)");
-
       function applyResponsiveDefault(force) {
         $advancedFilters.each(function () {
           var $details = $(this);
@@ -145,13 +147,12 @@
             return;
           }
 
-          $details.prop("open", !mobileQuery.matches);
-          syncAdvancedToggleState($details);
+          setAdvancedFilterState($details, !mobileQuery.matches, true);
         });
       }
 
       $advancedFilters.each(function () {
-        syncAdvancedToggleState($(this));
+        setAdvancedFilterState($(this), $(this).prop("open"), true);
       });
 
       $(document).on(
@@ -174,11 +175,10 @@
           event.stopPropagation();
 
           var $details = $(this).closest(".travel-filter-advanced");
-          var nextOpen = !$details.prop("open");
+          var nextOpen = !$details.hasClass("is-open");
 
           $details.data("userToggled", true);
-          $details.prop("open", nextOpen);
-          syncAdvancedToggleState($details);
+          setAdvancedFilterState($details, nextOpen, false);
         }
       );
 
@@ -208,6 +208,10 @@
         $quickFilterRows.each(function () {
           syncQuickFilterIndicator($(this));
         });
+
+        $advancedFilters.each(function () {
+          refreshAdvancedFilterHeight($(this));
+        });
       }
 
       refreshIndicators();
@@ -222,12 +226,169 @@
     }
 
     function syncAdvancedToggleState($details) {
-      var isOpen = $details.prop("open");
+      var isOpen = $details.hasClass("is-open");
       var $toggle = $details.find(".travel-filter-advanced__toggle").first();
 
       if ($toggle.length) {
         $toggle.attr("aria-expanded", isOpen ? "true" : "false");
       }
+    }
+
+    function setAdvancedFilterState($details, shouldOpen, immediate) {
+      var $content = $details.find(".travel-filter-advanced__content").first();
+
+      if (!$details.length || !$content.length) {
+        return;
+      }
+
+      if ($details.data("isAnimating")) {
+        return;
+      }
+
+      var useImmediate = immediate || prefersReducedMotion.matches;
+
+      if (useImmediate) {
+        $details.prop("open", shouldOpen);
+        $details.toggleClass("is-open", shouldOpen);
+        $details.removeClass("is-animating");
+        $content.css({
+          maxHeight: shouldOpen ? "none" : "",
+          opacity: shouldOpen ? "1" : "",
+          transform: shouldOpen ? "translateY(0)" : "",
+          paddingBottom: shouldOpen ? "18px" : "0px",
+          overflow: shouldOpen ? "visible" : "",
+        });
+        syncAdvancedToggleState($details);
+        return;
+      }
+
+      if (shouldOpen) {
+        animateAdvancedFilterOpen($details, $content);
+      } else {
+        animateAdvancedFilterClose($details, $content);
+      }
+    }
+
+    function animateAdvancedFilterOpen($details, $content) {
+      $details.data("isAnimating", true);
+      $details.prop("open", true);
+      $details.addClass("is-animating");
+      $details.removeClass("is-open");
+
+      $content.css({
+        overflow: "hidden",
+        maxHeight: "0px",
+        opacity: "0",
+        transform: "translateY(-12px)",
+        paddingBottom: "0px",
+      });
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          $content.css({
+            maxHeight: $content[0].scrollHeight + "px",
+            opacity: "1",
+            transform: "translateY(0)",
+            paddingBottom: "18px",
+          });
+
+          finishAdvancedFilterAnimation($details, $content, true);
+        });
+      });
+
+      syncAdvancedToggleState($details);
+    }
+
+    function animateAdvancedFilterClose($details, $content) {
+      $details.data("isAnimating", true);
+      $details.addClass("is-animating is-open");
+      $details.prop("open", true);
+
+      $content.css({
+        overflow: "hidden",
+        maxHeight: $content[0].scrollHeight + "px",
+        opacity: "1",
+        transform: "translateY(0)",
+        paddingBottom: "18px",
+      });
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          $content.css({
+            maxHeight: "0px",
+            opacity: "0",
+            transform: "translateY(-12px)",
+            paddingBottom: "0px",
+          });
+
+          finishAdvancedFilterAnimation($details, $content, false);
+        });
+      });
+
+      syncAdvancedToggleState($details);
+    }
+
+    function finishAdvancedFilterAnimation($details, $content, isOpen) {
+      var completed = false;
+
+      function cleanup() {
+        if (completed) {
+          return;
+        }
+
+        completed = true;
+        $content.off("transitionend", handleTransitionEnd);
+        $details.data("isAnimating", false);
+        $details.removeClass("is-animating");
+        $details.toggleClass("is-open", isOpen);
+        $details.prop("open", isOpen);
+
+        if (isOpen) {
+          $content.css({
+            maxHeight: "none",
+            opacity: "1",
+            transform: "translateY(0)",
+            paddingBottom: "18px",
+            overflow: "visible",
+          });
+        } else {
+          $content.css({
+            maxHeight: "",
+            opacity: "",
+            transform: "",
+            paddingBottom: "",
+            overflow: "",
+          });
+        }
+
+        syncAdvancedToggleState($details);
+      }
+
+      function handleTransitionEnd(event) {
+        if (event.target !== $content[0] || event.originalEvent.propertyName !== "max-height") {
+          return;
+        }
+
+        cleanup();
+      }
+
+      $content.on("transitionend", handleTransitionEnd);
+      window.setTimeout(cleanup, 420);
+    }
+
+    function refreshAdvancedFilterHeight($details) {
+      var $content = $details.find(".travel-filter-advanced__content").first();
+
+      if (
+        !$details.length ||
+        !$content.length ||
+        !$details.hasClass("is-open") ||
+        $details.data("isAnimating")
+      ) {
+        return;
+      }
+
+      $content.css("maxHeight", "none");
     }
 
     function getEmptyFilterState() {

@@ -862,6 +862,24 @@
 
 .travel-filter-advanced__content {
     padding: 0 18px 18px;
+    overflow: hidden;
+    transform-origin: top center;
+    transition:
+        max-height 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        padding-bottom 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.22s ease,
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.travel-filter-advanced:not(.is-open):not(.is-animating) .travel-filter-advanced__content {
+    opacity: 0;
+    transform: translateY(-12px);
+}
+
+.travel-filter-advanced.is-open .travel-filter-advanced__content,
+.travel-filter-advanced.is-animating .travel-filter-advanced__content {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .travel-filter-advanced__grid {
