@@ -795,7 +795,7 @@
     gap: 18px;
     align-items: center;
     min-height: 62px;
-    padding: 18px;
+    padding: 10px 18px;
     color: var(--travel-lab-text);
     font-size: 15px;
     font-weight: 700;
