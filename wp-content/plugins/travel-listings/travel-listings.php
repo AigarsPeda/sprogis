@@ -1492,7 +1492,12 @@ class Travel_Listings {
                                                 <?php endif; ?>
                                                 <div class="travel-filter-advanced__actions">
                                                     <button type="submit" class="filter-btn filter-btn-primary"><?php echo esc_html($this->translate('Filter')); ?></button>
-                                                    <button type="button" class="filter-btn filter-btn-secondary travel-filter-reset"><?php echo esc_html($this->translate('Reset')); ?></button>
+                                                    <button type="button" class="filter-btn filter-btn-secondary travel-filter-reset" aria-label="<?php echo esc_attr($this->translate('Reset')); ?>" title="<?php echo esc_attr($this->translate('Reset')); ?>">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                            <path d="M18 6 6 18"/>
+                                                            <path d="m6 6 12 12"/>
+                                                        </svg>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1674,7 +1679,12 @@ class Travel_Listings {
                             <?php endif; ?>
                             <div class="filter-group filter-buttons">
                                 <button type="submit" class="filter-btn filter-btn-primary"><?php echo esc_html($this->translate('Filter')); ?></button>
-                                <button type="button" id="reset-filter" class="filter-btn filter-btn-secondary"><?php echo esc_html($this->translate('Reset')); ?></button>
+                                <button type="button" id="reset-filter" class="filter-btn filter-btn-secondary" aria-label="<?php echo esc_attr($this->translate('Reset')); ?>" title="<?php echo esc_attr($this->translate('Reset')); ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M18 6 6 18"/>
+                                        <path d="m6 6 12 12"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </form>
