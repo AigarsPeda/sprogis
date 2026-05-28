@@ -20,7 +20,7 @@ while (have_posts()) :
     $date_from = get_post_meta($post_id, '_travel_date_from', true);
     $date_to = get_post_meta($post_id, '_travel_date_to', true);
     $location = get_post_meta($post_id, '_travel_location', true);
-    $price = get_post_meta($post_id, '_travel_price', true);
+    $price = $travel_listings_instance->get_listing_price($post_id);
     $contact_email = get_post_meta($post_id, '_travel_contact_email', true);
     $contact_phone = get_post_meta($post_id, '_travel_contact_phone', true);
     $website_url = get_post_meta($post_id, '_travel_website_url', true);
@@ -68,10 +68,25 @@ body.single-travel_listing hr {
     display: none !important;
 }
 
+body.single-travel_listing {
+    background: #edf3f8 !important;
+    color: #1a1a1a !important;
+}
+
+body.single-travel_listing .wp-site-blocks,
+body.single-travel_listing .site-content,
+body.single-travel_listing .content-area,
+body.single-travel_listing main {
+    background: transparent !important;
+}
+
 .single-travel-listing {
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
@@ -365,6 +380,92 @@ body.single-travel_listing hr {
 .contact-btn-secondary:hover {
     background: #f0f0f0;
     border-color: #ccc;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.single-travel_listing {
+        background: #0f172a !important;
+        color: #e2e8f0 !important;
+    }
+
+    .single-travel-listing {
+        background: linear-gradient(180deg, #111b2f 0%, #0f172a 100%);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+    }
+
+    .lang-dropdown-toggle {
+        background: #1e293b;
+        color: #cbd5e1;
+        border-color: rgba(148, 163, 184, 0.22);
+    }
+
+    .lang-dropdown-toggle:hover {
+        background: #334155;
+        color: #f8fafc;
+    }
+
+    .lang-dropdown-menu {
+        background: #0f172a;
+        border-color: rgba(148, 163, 184, 0.22);
+        box-shadow: 0 20px 45px rgba(2, 6, 23, 0.5);
+    }
+
+    .lang-dropdown-item {
+        color: #cbd5e1;
+    }
+
+    .lang-dropdown-item:hover {
+        background: #1e293b;
+        color: #f8fafc;
+    }
+
+    .single-listing-title {
+        color: #f8fafc;
+    }
+
+    .listing-header-meta {
+        color: #94a3b8;
+    }
+
+    .listing-header-meta svg {
+        color: #64748b;
+    }
+
+    .listing-description {
+        color: #cbd5e1;
+    }
+
+    .listing-info-card {
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .listing-info-card h3 {
+        color: #f8fafc;
+    }
+
+    .listing-info-item {
+        border-bottom-color: rgba(148, 163, 184, 0.16);
+    }
+
+    .listing-info-item .info-label {
+        color: #94a3b8;
+    }
+
+    .listing-info-item .info-value {
+        color: #e2e8f0;
+    }
+
+    .contact-btn-secondary {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: rgba(148, 163, 184, 0.22);
+    }
+
+    .contact-btn-secondary:hover {
+        background: #334155;
+        border-color: rgba(148, 163, 184, 0.32);
+    }
 }
 
 @media (max-width: 768px) {

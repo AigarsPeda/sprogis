@@ -90,6 +90,18 @@ Use symlink helper:
 ./scripts/link-travel-listings-local.sh link
 ```
 
+Build a private plugin zip for upload:
+
+```bash
+./scripts/build-travel-listings-zip.sh
+```
+
+Optional custom output path:
+
+```bash
+./scripts/build-travel-listings-zip.sh /tmp/travel-listings.zip
+```
+
 Optional target override:
 
 ```bash
@@ -139,4 +151,5 @@ When implementing changes, follow this sequence:
 git status -- wp-content/plugins/travel-listings
 git diff -- wp-content/plugins/travel-listings
 ```
+
 

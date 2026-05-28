@@ -26,15 +26,16 @@
     --travel-lab-field-bg: #ffffff;
     --travel-lab-field-border: #d7e1eb;
     --travel-lab-field-placeholder: #8b9aae;
+    --travel-lab-field-radius: 10px;
     --travel-lab-secondary-bg: #ffffff;
     --travel-lab-secondary-text: #607287;
     --travel-lab-shadow: 0 28px 70px rgba(15, 23, 42, 0.08);
     --travel-lab-image:
         linear-gradient(135deg, rgba(7, 14, 26, 0.62), rgba(7, 14, 26, 0.28)),
         var(--travel-filter-hero-image, linear-gradient(135deg, #d7e6ef 0%, #eef5f9 100%));
-    max-width: 1400px;
+    max-width: none;
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
     padding: 0;
 }
 
@@ -613,12 +614,12 @@
     justify-content: center;
     align-items: center;
     gap: 18px;
-    width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    max-width: 100%;
     min-height: 420px;
     padding: 22px;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    margin-left: 0;
+    margin-right: 0;
     background:
         linear-gradient(180deg, rgba(8, 15, 28, 0.16), rgba(8, 15, 28, 0.56)),
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 32%),
@@ -669,6 +670,26 @@
     box-shadow: var(--travel-lab-shadow);
     overflow: hidden;
     backdrop-filter: blur(10px);
+}
+
+@media (min-width: 1100px) {
+    .travel-filter-shell {
+        max-width: 1160px;
+    }
+
+    .travel-filter-advanced__summary,
+    .travel-filter-advanced__content {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .travel-filter-variant-form__body {
+        max-width: 100%;
+        width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+        box-sizing: border-box;
+    }
 }
 
 .travel-filter-variant-form__chips {
@@ -890,7 +911,7 @@
 
 .travel-filter-advanced__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.2fr) minmax(260px, auto);
+    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.2fr);
     gap: 12px;
     align-items: end;
 }
@@ -908,12 +929,14 @@
     flex-wrap: nowrap;
     gap: 10px;
     margin-top: 0;
+    grid-column: 1 / -1;
     align-self: end;
+    justify-content: flex-end;
 }
 
 .travel-filter-advanced__actions .filter-btn {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 0 0 auto;
+    min-width: 132px;
 }
 
 .travel-filter-lab .filter-group label {
@@ -1019,8 +1042,18 @@
 }
 
 @media (max-width: 640px) {
+    .travel-filter-lab {
+        width: calc(100% + 30px);
+        max-width: none;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
     .travel-filter-variant {
-        padding: 0;
+        padding: 0 15px;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
     }
 
     .travel-filter-variant__header {
@@ -1039,18 +1072,24 @@
     }
 
     .travel-filter-variant-form__hero {
-        min-height: 340px;
+        min-height: 260px;
         padding: 0;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .travel-filter-variant-form__body {
-        padding: 18px 12px 8px;
+        padding: 16px 15px 8px;
     }
 
     .travel-filter-shell {
         border-radius: 16px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .travel-filter-variant-form__chips {
@@ -1080,6 +1119,12 @@
 
     .travel-filter-advanced__actions {
         flex-wrap: wrap;
+    }
+
+    .travel-listings-wrapper,
+    .travel-filter-variant-form,
+    .travel-filter-variant-form__body {
+        overflow-x: hidden;
     }
 }
 
@@ -1353,6 +1398,23 @@ body:has(.travel-filter-lab) .wp-block-post-content {
     margin-top: 0 !important;
 }
 
+body:has(.travel-filter-lab) .ast-container,
+body:has(.travel-listings-wrapper) .ast-container {
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+body:has(.travel-filter-lab) #primary,
+body:has(.travel-listings-wrapper) #primary,
+body:has(.travel-filter-lab) .content-area,
+body:has(.travel-listings-wrapper) .content-area {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
 /* Hero Wrapper - forces full width */
 .travel-hero-wrapper {
     display: block;
@@ -1366,6 +1428,13 @@ body:has(.travel-filter-lab) .wp-block-post-content {
     margin-top: 0 !important;
     overflow: visible;
     box-sizing: border-box;
+}
+
+html:has(.travel-hero-wrapper),
+html:has(.travel-listings-wrapper),
+body:has(.travel-hero-wrapper),
+body:has(.travel-listings-wrapper) {
+    overflow-x: hidden;
 }
 
 /* Additional theme overrides for twentytwentyfive */
@@ -1475,8 +1544,8 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 /* Wrapper */
 .travel-listings-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 20px 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
@@ -1551,12 +1620,28 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     width: 100%;
     padding: 10px 14px;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: var(--travel-lab-field-radius);
     font-size: 14px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background: #fff;
     box-sizing: border-box;
     color: #334155;
+}
+
+.travel-filter-lab input.filter-input,
+.travel-filter-lab select.filter-input {
+    border-radius: var(--travel-lab-field-radius) !important;
+}
+
+select.filter-input {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: var(--travel-lab-field-radius) !important;
+    padding-right: 44px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
 }
 
 .filter-input:focus {
@@ -1571,6 +1656,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .filter-input[type="date"] {
     position: relative;
     padding-right: 42px; /* make room for custom icon */
+    border-radius: var(--travel-lab-field-radius) !important;
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px 16px;
@@ -1600,6 +1686,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .filter-input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
+    border-radius: var(--travel-lab-field-radius) !important;
 }
 
 .filter-input[type="number"]::-webkit-outer-spin-button,
@@ -1710,11 +1797,13 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 }
 
 .filter-btn {
-    padding: 10px 20px;
+    min-height: 48px;
+    padding: 0 16px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1;
     cursor: pointer;
     transition: all 0.25s ease;
     flex: 1;
@@ -1724,7 +1813,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .filter-btn-primary {
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
-    box-shadow: 0 3px 12px rgba(0, 119, 182, 0.25);
+    box-shadow: 0 8px 18px rgba(0, 119, 182, 0.24);
 }
 
 .filter-btn-primary:hover {
@@ -1736,7 +1825,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 .filter-btn-secondary {
     background: #fff;
     color: #64748b;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.24);
 }
 
 .filter-btn-secondary:hover {

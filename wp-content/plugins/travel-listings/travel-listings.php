@@ -2,7 +2,9 @@
 /**
  * Plugin Name: Travel Listings
  * Description: A custom plugin to display travel/event listings with date range filtering
- * Version: 1.0.0
+ * Version: 1.0.2
+ * Requires at least: 6.0
+ * Requires PHP: 7.4
  * Author: A.Pēda
  * Text Domain: travel-listings
  */
@@ -217,7 +219,7 @@ class Travel_Listings {
             return (string) filemtime($asset_path);
         }
 
-        return '1.0.0';
+        return '1.0.2';
     }
 
     /**
@@ -963,6 +965,27 @@ class Travel_Listings {
         }
 
         return $excerpt;
+    }
+
+    /**
+     * Get a safe display version of the price field.
+     * Prevent obviously broken long-form content from blowing up card layouts.
+     */
+    public function get_listing_price($post_id) {
+        $price = sanitize_text_field((string) get_post_meta($post_id, '_travel_price', true));
+        $price = trim((string) preg_replace('/\s+/', ' ', $price));
+
+        if ($price === '') {
+            return '';
+        }
+
+        $price_length = function_exists('mb_strlen') ? mb_strlen($price) : strlen($price);
+
+        if ($price_length > 40) {
+            return '';
+        }
+
+        return $price;
     }
     
     /**
@@ -1720,7 +1743,7 @@ class Travel_Listings {
         $date_from = get_post_meta($post_id, '_travel_date_from', true);
         $date_to = get_post_meta($post_id, '_travel_date_to', true);
         $location = get_post_meta($post_id, '_travel_location', true);
-        $price = get_post_meta($post_id, '_travel_price', true);
+        $price = $this->get_listing_price($post_id);
         $price_on_image = get_post_meta($post_id, '_travel_price_on_image', true);
         $contact_email = get_post_meta($post_id, '_travel_contact_email', true);
         $contact_phone = get_post_meta($post_id, '_travel_contact_phone', true);
