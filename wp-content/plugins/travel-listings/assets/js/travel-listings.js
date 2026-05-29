@@ -84,6 +84,7 @@
       syncAllForms(filterState);
       initAdvancedFilterToggles();
       initQuickFilterIndicators();
+      initMobileDateFieldPlaceholders();
 
       $filterForms.on("submit", function (e) {
         e.preventDefault();
@@ -223,6 +224,59 @@
       $quickFilterRows.on("scroll", function () {
         syncQuickFilterIndicator($(this));
       });
+    }
+
+    function initMobileDateFieldPlaceholders() {
+      var $dateFields = $filterForms.find('.filter-input[type="date"]');
+
+      if (!$dateFields.length) {
+        return;
+      }
+
+      var mobileQuery = window.matchMedia("(max-width: 640px)");
+
+      function syncDateFieldPlaceholder($field) {
+        var $wrapper = $field.closest(".travel-date-field");
+        var $placeholder = $wrapper.find(".travel-date-placeholder");
+        var shouldShow = mobileQuery.matches && !$field.val() && !$field.is(":focus");
+
+        $wrapper.toggleClass("is-empty", shouldShow);
+        $placeholder.toggleClass("is-visible", shouldShow);
+      }
+
+      function syncAllDateFieldPlaceholders() {
+        $dateFields.each(function () {
+          syncDateFieldPlaceholder($(this));
+        });
+      }
+
+      $dateFields.each(function () {
+        var $field = $(this);
+        var $wrapper = $field.closest(".travel-date-field");
+
+        if (!$wrapper.length) {
+          $field.wrap('<span class="travel-date-field"></span>');
+          $wrapper = $field.parent();
+        }
+
+        if (!$wrapper.find(".travel-date-placeholder").length) {
+          $field.after(
+            '<span class="travel-date-placeholder" aria-hidden="true">dd/mm/yyyy</span>'
+          );
+        }
+
+        $field.on("focus blur change input travel-sync-state", function () {
+          syncDateFieldPlaceholder($field);
+        });
+      });
+
+      if (typeof mobileQuery.addEventListener === "function") {
+        mobileQuery.addEventListener("change", syncAllDateFieldPlaceholders);
+      } else if (typeof mobileQuery.addListener === "function") {
+        mobileQuery.addListener(syncAllDateFieldPlaceholders);
+      }
+
+      syncAllDateFieldPlaceholders();
     }
 
     function syncAdvancedToggleState($details) {
@@ -432,6 +486,7 @@
 
       if ($field.length) {
         $field.val(value);
+        $field.trigger("travel-sync-state");
       }
     }
 

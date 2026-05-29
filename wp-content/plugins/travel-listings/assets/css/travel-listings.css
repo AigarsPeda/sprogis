@@ -1083,7 +1083,7 @@
     }
 
     .travel-filter-variant-form__body {
-        padding: 16px 15px 8px;
+        padding: 16px 18px 8px;
     }
 
     .travel-filter-shell {
@@ -1104,7 +1104,11 @@
     }
 
     .travel-filter-advanced__summary {
-        padding: 10px 14px;
+        padding: 10px 16px;
+    }
+
+    .travel-filter-advanced__content {
+        padding: 0 16px 18px;
     }
 
     .travel-filter-advanced__summary-right {
@@ -1115,6 +1119,31 @@
 
     .travel-filter-advanced__grid {
         grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .travel-filter-advanced__grid .filter-input {
+        height: 56px;
+        min-height: 56px;
+        padding-top: 0;
+        padding-bottom: 0;
+        line-height: 56px;
+    }
+
+    .travel-filter-advanced__grid .filter-input[type="date"] {
+        font-size: 16px;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .travel-filter-advanced__grid select.filter-input {
+        line-height: normal;
+    }
+
+    .travel-filter-advanced__grid .travel-date-field.is-empty .filter-input[type="date"] {
+        color: transparent;
+        caret-color: #e2e8f0;
     }
 
     .travel-filter-advanced__actions {
@@ -1592,6 +1621,7 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
     min-width: 160px;
     margin: 0;
     padding: 0;
+    position: relative;
 }
 
 .filter-group label {
@@ -1655,6 +1685,12 @@ select.filter-input {
    hiding the native indicator and using a background-image. */
 .filter-input[type="date"] {
     position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
     padding-right: 42px; /* make room for custom icon */
     border-radius: var(--travel-lab-field-radius) !important;
     background-repeat: no-repeat;
@@ -1673,6 +1709,28 @@ select.filter-input {
     width: 42px;
     height: 100%;
     cursor: pointer;
+}
+
+.travel-date-field {
+    position: relative;
+    display: block;
+}
+
+.travel-date-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.travel-date-placeholder.is-visible {
+    opacity: 1;
 }
 
 @media (prefers-color-scheme: dark) {
