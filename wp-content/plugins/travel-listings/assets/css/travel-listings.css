@@ -815,10 +815,10 @@
     justify-content: space-between;
     gap: 18px;
     align-items: center;
-    min-height: 62px;
-    padding: 10px 18px;
+    min-height: 56px;
+    padding: 8px 18px;
     color: var(--travel-lab-text);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     cursor: default;
 }
@@ -849,8 +849,8 @@
 }
 
 .travel-filter-advanced__toggle {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -888,7 +888,7 @@
 }
 
 .travel-filter-advanced__content {
-    padding: 0 18px 18px;
+    padding: 0 18px 16px;
     overflow: hidden;
     transform-origin: top center;
     transition:
@@ -912,7 +912,7 @@
 .travel-filter-advanced__grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.2fr);
-    gap: 12px;
+    gap: 14px;
     align-items: end;
 }
 
@@ -927,8 +927,8 @@
 .travel-filter-advanced__actions {
     display: flex;
     flex-wrap: nowrap;
-    gap: 10px;
-    margin-top: 0;
+    gap: 8px;
+    margin-top: 2px;
     grid-column: 1 / -1;
     align-self: end;
     justify-content: flex-end;
@@ -936,7 +936,7 @@
 
 .travel-filter-advanced__actions .filter-btn {
     flex: 0 0 auto;
-    min-width: 132px;
+    min-width: 120px;
 }
 
 .travel-filter-lab .filter-group label {
@@ -1083,7 +1083,7 @@
     }
 
     .travel-filter-variant-form__body {
-        padding: 16px 18px 8px;
+        padding: 14px 18px 10px;
     }
 
     .travel-filter-shell {
@@ -1095,20 +1095,21 @@
     .travel-filter-variant-form__chips {
         display: flex;
         width: 100%;
-        gap: 22px;
-        padding-bottom: 10px;
+        gap: 20px;
+        padding-bottom: 8px;
     }
 
     .travel-filter-chip {
-        font-size: 0.98rem;
+        font-size: 0.94rem;
     }
 
     .travel-filter-advanced__summary {
-        padding: 10px 16px;
+        min-height: 52px;
+        padding: 8px 14px;
     }
 
     .travel-filter-advanced__content {
-        padding: 0 16px 18px;
+        padding: 0 14px 14px;
     }
 
     .travel-filter-advanced__summary-right {
@@ -1119,19 +1120,22 @@
 
     .travel-filter-advanced__grid {
         grid-template-columns: 1fr;
-        gap: 14px;
+        gap: 12px;
     }
 
     .travel-filter-advanced__grid .filter-input {
-        height: 56px;
-        min-height: 56px;
-        padding-top: 0;
-        padding-bottom: 0;
-        line-height: 56px;
+        height: 50px;
+        min-height: 50px;
+        padding-left: 14px;
+        padding-right: 14px;
+        line-height: 1.2;
+        font-size: 15px;
     }
 
     .travel-filter-advanced__grid .filter-input[type="date"] {
-        font-size: 16px;
+        height: 50px;
+        min-height: 50px;
+        font-size: 15px;
         width: 100%;
         min-width: 0;
         max-width: 100%;
@@ -1148,6 +1152,19 @@
 
     .travel-filter-advanced__actions {
         flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 2px;
+    }
+
+    .travel-filter-advanced__actions .filter-btn {
+        min-width: 116px;
+    }
+
+    .travel-filter-advanced__actions .filter-btn-secondary.travel-filter-reset,
+    #reset-filter.filter-btn-secondary {
+        min-width: 50px;
+        width: 50px;
+        flex-basis: 50px;
     }
 
     .travel-listings-wrapper,
@@ -1626,14 +1643,15 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .filter-group label {
     display: block;
-    margin: 0 0 8px 0;
+    margin: 0 0 7px 0;
     padding: 0;
     font-weight: 600;
     color: #475569;
-    font-size: 13px;
-    letter-spacing: 0.2px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
     line-height: 1.2;
     border: none;
+    text-transform: uppercase;
 }
 
 .filter-group label::before,
@@ -1648,14 +1666,18 @@ body:has(.travel-hero-wrapper) .wp-block-post-content > *:first-child {
 
 .filter-input {
     width: 100%;
-    padding: 10px 14px;
+    height: 46px;
+    min-height: 46px;
+    padding: 0 14px;
     border: 1px solid #e2e8f0;
     border-radius: var(--travel-lab-field-radius);
     font-size: 14px;
+    line-height: 1.2;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background: #fff;
     box-sizing: border-box;
     color: #334155;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .travel-filter-lab input.filter-input,
@@ -1691,6 +1713,8 @@ select.filter-input {
     max-width: 100%;
     -webkit-appearance: none;
     appearance: none;
+    height: 46px;
+    min-height: 46px;
     padding-right: 42px; /* make room for custom icon */
     border-radius: var(--travel-lab-field-radius) !important;
     background-repeat: no-repeat;
@@ -1723,7 +1747,7 @@ select.filter-input {
     transform: translateY(-50%);
     color: #94a3b8;
     font-size: 14px;
-    line-height: 1;
+    line-height: 1.2;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -1855,11 +1879,11 @@ select.filter-input {
 }
 
 .filter-btn {
-    min-height: 40px;
-    padding: 0 28px;
+    min-height: 44px;
+    padding: 0 22px;
     border: none;
-    border-radius: 12px;
-    font-size: 14px;
+    border-radius: 14px;
+    font-size: 13px;
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
@@ -1871,12 +1895,12 @@ select.filter-input {
 .filter-btn-primary {
     background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
     color: #fff;
-    box-shadow: 0 8px 18px rgba(0, 119, 182, 0.24);
+    box-shadow: 0 10px 20px rgba(0, 119, 182, 0.16);
 }
 
 .filter-btn-primary:hover {
     background: linear-gradient(135deg, #0096d1 0%, #00669e 100%);
-    box-shadow: 0 5px 18px rgba(0, 119, 182, 0.35);
+    box-shadow: 0 8px 18px rgba(0, 119, 182, 0.24);
     transform: translateY(-1px);
 }
 
@@ -1894,10 +1918,10 @@ select.filter-input {
 
 .filter-btn-secondary.travel-filter-reset,
 #reset-filter.filter-btn-secondary {
-    min-width: 48px;
-    width: 48px;
+    min-width: 44px;
+    width: 44px;
     padding: 0;
-    flex: 0 0 48px;
+    flex: 0 0 44px;
 }
 
 .filter-btn-secondary.travel-filter-reset svg,
