@@ -348,7 +348,9 @@ body.single-travel_listing main {
     gap: 10px;
     min-height: 110px;
     padding: 18px 20px;
-    width: min(100%, 210px);
+    width: fit-content;
+    min-width: 210px;
+    max-width: 100%;
 }
 
 .listing-price-display--c .price-label {
@@ -364,6 +366,7 @@ body.single-travel_listing main {
     text-align: right;
     font-size: clamp(2.6rem, 3.3vw, 3.4rem);
     color: #0f172a;
+    white-space: nowrap;
 }
 
 .listing-contact-buttons {
@@ -572,6 +575,7 @@ body.single-travel_listing main {
         gap: 8px;
         padding: 16px 18px 18px;
         width: 100%;
+        min-width: 0;
     }
 
     .listing-price-display--c .price-value {
