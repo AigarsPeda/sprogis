@@ -111,9 +111,9 @@ class Travel_Listings {
             'ru' => 'С',
         ),
         'Back to listings' => array(
-            'lv' => 'Atpakaļ uz sarakstu',
-            'en' => 'Back to listings',
-            'ru' => 'Назад к списку',
+            'lv' => 'Atpakaļ',
+            'en' => 'Back',
+            'ru' => 'Назад',
         ),
         'Price' => array(
             'lv' => 'Cena',

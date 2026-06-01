@@ -81,17 +81,17 @@ body.single-travel_listing main {
 }
 
 .single-travel-listing {
-    max-width: 900px;
+    max-width: 1180px;
     margin: 0 auto;
-    padding: 40px 20px;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    padding: 36px 28px 40px;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .listing-header {
-    margin-bottom: 32px;
+    margin-bottom: 26px;
 }
 
 .listing-back-link {
@@ -113,7 +113,7 @@ body.single-travel_listing main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 16px;
 }
 
 /* Language Switcher Dropdown */
@@ -203,149 +203,173 @@ body.single-travel_listing main {
     font-weight: 400;
 }
 
-.single-listing-title {
-    font-size: 32px;
-    margin: 0 0 16px 0;
-    color: #1a1a1a;
-    line-height: 1.3;
-}
-
-.listing-header-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    color: #666;
-    font-size: 15px;
-}
-
-.listing-header-meta > div {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.listing-header-meta svg {
-    color: #888;
-}
-
 .listing-featured-image {
-    margin-bottom: 32px;
-    border-radius: 12px;
+    margin-bottom: 28px;
+    border-radius: 24px;
     overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 7;
 }
 
 .listing-featured-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
 }
 
 .listing-main-content {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 40px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 340px);
+    gap: 44px;
+    align-items: start;
+}
+
+.listing-content-main {
+    min-width: 0;
+}
+
+.listing-overview {
+    margin-bottom: 28px;
+    padding-right: 8px;
+}
+
+.single-listing-title {
+    margin: 0 0 18px 0;
+    color: #0f172a;
+    font-size: clamp(2rem, 3.4vw, 3.35rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.listing-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.listing-header-meta > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgba(148, 163, 184, 0.08);
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.listing-header-meta svg {
+    color: #0ea5e9;
+}
+
+.listing-overview-divider {
+    width: 72px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0ea5e9 0%, rgba(14, 165, 233, 0.14) 100%);
 }
 
 .listing-description {
-    line-height: 1.8;
-    font-size: 16px;
-    color: #333;
+    padding: 6px 0 0;
+    line-height: 1.85;
+    font-size: 17px;
+    color: #334155;
 }
 
 .listing-description p {
-    margin-bottom: 1.5em;
+    margin: 0 0 1.3em;
+}
+
+.listing-description p:last-child {
+    margin-bottom: 0;
+}
+
+.listing-description p:first-child {
+    color: #0f172a;
+    font-size: 1.18em;
+    line-height: 1.72;
 }
 
 .listing-sidebar {
     position: sticky;
-    top: 20px;
+    top: 28px;
     align-self: start;
 }
 
-.listing-info-card {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
-}
-
-.listing-info-card h3 {
-    margin: 0 0 20px 0;
-    font-size: 18px;
-    color: #1a1a1a;
-}
-
-.listing-info-item {
+.listing-sidebar-stack {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
 }
 
-.listing-info-item:last-child {
-    border-bottom: none;
-}
-
-.listing-info-item svg {
-    flex-shrink: 0;
-    color: #0073aa;
-    margin-top: 2px;
-}
-
-.listing-info-item .info-content {
-    flex-grow: 1;
-}
-
-.listing-info-item .info-label {
-    font-size: 12px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}
-
-.listing-info-item .info-value {
-    font-size: 15px;
-    color: #333;
-    font-weight: 500;
-}
-
-.listing-info-item .info-value a {
-    color: #0073aa;
-    text-decoration: none;
-}
-
-.listing-info-item .info-value a:hover {
-    text-decoration: underline;
+.price-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: flex-end;
 }
 
 .listing-price-display {
-    background: #0073aa;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    min-height: 122px;
+    padding: 18px 20px 20px;
+    border-radius: 24px;
+    box-shadow: none;
 }
 
 .listing-price-display .price-label {
-    font-size: 12px;
-    opacity: 0.9;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    letter-spacing: 0.16em;
+    margin-bottom: 10px;
+    font-weight: 700;
 }
 
 .listing-price-display .price-value {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: clamp(2rem, 2.6vw, 2.7rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+}
+
+.listing-price-display--c {
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    color: #0f172a;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: end;
+    gap: 10px;
+    min-height: 110px;
+    padding: 18px 20px;
+    width: min(100%, 210px);
+}
+
+.listing-price-display--c .price-label {
+    margin-bottom: 0;
+    color: #0ea5e9;
+    letter-spacing: 0.16em;
+    width: 100%;
+    text-align: right;
+}
+
+.listing-price-display--c .price-value {
+    justify-self: end;
+    text-align: right;
+    font-size: clamp(2.6rem, 3.3vw, 3.4rem);
+    color: #0f172a;
 }
 
 .listing-contact-buttons {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 12px;
 }
 
 .contact-btn {
@@ -353,9 +377,10 @@ body.single-travel_listing main {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 14px 20px;
-    border-radius: 8px;
-    font-size: 15px;
+    min-height: 50px;
+    padding: 0 20px;
+    border-radius: 16px;
+    font-size: 14px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
@@ -389,8 +414,8 @@ body.single-travel_listing main {
     }
 
     .single-travel-listing {
-        background: linear-gradient(180deg, #111b2f 0%, #0f172a 100%);
-        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+        background: transparent;
+        box-shadow: none;
     }
 
     .lang-dropdown-toggle {
@@ -427,33 +452,40 @@ body.single-travel_listing main {
         color: #94a3b8;
     }
 
+    .listing-header-meta > div {
+        background: rgba(30, 41, 59, 0.76);
+        color: #cbd5e1;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
     .listing-header-meta svg {
-        color: #64748b;
+        color: #38bdf8;
+    }
+
+    .listing-overview-divider {
+        background: linear-gradient(90deg, #38bdf8 0%, rgba(56, 189, 248, 0.14) 100%);
     }
 
     .listing-description {
         color: #cbd5e1;
     }
 
-    .listing-info-card {
-        background: rgba(15, 23, 42, 0.92);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-    }
-
-    .listing-info-card h3 {
+    .listing-description p:first-child {
         color: #f8fafc;
     }
 
-    .listing-info-item {
-        border-bottom-color: rgba(148, 163, 184, 0.16);
+    .listing-price-display--c .price-label {
+        color: #38bdf8;
     }
 
-    .listing-info-item .info-label {
-        color: #94a3b8;
+    .listing-price-display--c .price-value {
+        color: #f8fafc;
     }
 
-    .listing-info-item .info-value {
-        color: #e2e8f0;
+    .listing-price-display--c {
+        background: rgba(30, 41, 59, 0.76) !important;
+        border: 1px solid rgba(148, 163, 184, 0.14) !important;
+        box-shadow: none;
     }
 
     .contact-btn-secondary {
@@ -470,24 +502,81 @@ body.single-travel_listing main {
 
 @media (max-width: 768px) {
     .single-travel-listing {
-        padding: 20px 15px;
+        padding: 20px 16px 24px;
+        border-radius: 0;
     }
-    
+
+    .listing-header {
+        margin-bottom: 18px;
+    }
+
+    .listing-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .listing-featured-image {
+        margin-bottom: 20px;
+        border-radius: 18px;
+        aspect-ratio: 16 / 9;
+    }
+
+    .listing-overview {
+        margin-bottom: 20px;
+        padding-right: 0;
+    }
+
     .single-listing-title {
-        font-size: 24px;
+        font-size: 32px;
     }
-    
+
     .listing-header-meta {
         flex-direction: column;
         gap: 10px;
+        margin-bottom: 16px;
     }
-    
+
+    .listing-header-meta > div {
+        width: 100%;
+    }
+
     .listing-main-content {
         grid-template-columns: 1fr;
+        gap: 22px;
     }
-    
+
+    .listing-description {
+        padding-top: 2px;
+        font-size: 16px;
+    }
+
     .listing-sidebar {
         position: static;
+    }
+
+    .listing-sidebar-stack {
+        gap: 14px;
+    }
+
+    .listing-price-display {
+        border-radius: 20px;
+        min-height: 0;
+        padding: 18px 18px 20px;
+    }
+
+    .listing-price-display--c .price-value {
+        font-size: clamp(2.35rem, 9vw, 3.25rem);
+    }
+
+    .listing-price-display--c {
+        gap: 8px;
+        padding: 16px 18px 18px;
+        width: 100%;
+    }
+
+    .listing-price-display--c .price-value {
+        justify-self: end;
+        text-align: right;
     }
 }
 </style>
@@ -511,38 +600,6 @@ body.single-travel_listing main {
             <div class="travel-language-switcher travel-lang-dropdown"><?php $current_url = remove_query_arg('lang'); ?><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div>
         </div>
         
-        <h1 class="single-listing-title"><?php echo esc_html($listing_title); ?></h1>
-        
-        <div class="listing-header-meta">
-            <?php if ($date_from || $date_to): ?>
-            <div class="meta-dates">
-                <svg viewBox="0 0 24 24" width="18" height="18">
-                    <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
-                </svg>
-                <span>
-                    <?php
-                    if ($date_from && $date_to) {
-                        echo date_i18n('d.m.Y', strtotime($date_from)) . ' - ' . date_i18n('d.m.Y', strtotime($date_to));
-                    } elseif ($date_from) {
-                        echo esc_html($travel_listings_instance->translate('From')) . ' ' . date_i18n('d.m.Y', strtotime($date_from));
-                    } elseif ($date_to) {
-                        echo esc_html($travel_listings_instance->translate('Until')) . ' ' . date_i18n('d.m.Y', strtotime($date_to));
-                    }
-                    ?>
-                </span>
-            </div>
-            <?php endif; ?>
-            
-            <?php if ($location): ?>
-            <div class="meta-location">
-                <svg viewBox="0 0 24 24" width="18" height="18">
-                    <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-                <span><?php echo esc_html($location); ?></span>
-            </div>
-            <?php endif; ?>
-        </div>
-        
     </header>
     
     <?php if (has_post_thumbnail()): ?>
@@ -552,7 +609,44 @@ body.single-travel_listing main {
     <?php endif; ?>
     
     <div class="listing-main-content">
-        <div class="listing-description">
+        <div class="listing-content-main">
+            <section class="listing-overview">
+                <h1 class="single-listing-title"><?php echo esc_html($listing_title); ?></h1>
+
+                <div class="listing-header-meta">
+                    <?php if ($date_from || $date_to): ?>
+                    <div class="meta-dates">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
+                        </svg>
+                        <span>
+                            <?php
+                            if ($date_from && $date_to) {
+                                echo date_i18n('d.m.Y', strtotime($date_from)) . ' - ' . date_i18n('d.m.Y', strtotime($date_to));
+                            } elseif ($date_from) {
+                                echo esc_html($travel_listings_instance->translate('From')) . ' ' . date_i18n('d.m.Y', strtotime($date_from));
+                            } elseif ($date_to) {
+                                echo esc_html($travel_listings_instance->translate('Until')) . ' ' . date_i18n('d.m.Y', strtotime($date_to));
+                            }
+                            ?>
+                        </span>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($location): ?>
+                    <div class="meta-location">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <span><?php echo esc_html($location); ?></span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="listing-overview-divider" aria-hidden="true"></div>
+            </section>
+
+            <div class="listing-description">
             <?php
             if (!empty($description)) {
                 echo wp_kses_post(wpautop($description));
@@ -560,110 +654,48 @@ body.single-travel_listing main {
                 the_content();
             }
             ?>
+            </div>
         </div>
         
         <aside class="listing-sidebar">
-            <?php if ($price): ?>
-            <div class="listing-price-display">
-                <div class="price-label"><?php echo esc_html($travel_listings_instance->translate('Price')); ?></div>
-                <div class="price-value"><?php echo esc_html($price); ?></div>
-            </div>
-            <?php endif; ?>
-
-            <div class="listing-info-card">
-                <h3><?php echo esc_html($travel_listings_instance->translate('Details')); ?></h3>
-                
-                <?php if ($date_from): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('Start Date')); ?></div>
-                        <div class="info-value"><?php echo date_i18n(get_option('date_format'), strtotime($date_from)); ?></div>
+            <div class="listing-sidebar-stack">
+                <?php if ($price): ?>
+                <div class="price-showcase">
+                    <div class="listing-price-display listing-price-display--c">
+                        <div class="price-label"><?php echo esc_html($travel_listings_instance->translate('Price')); ?></div>
+                        <div class="price-value"><?php echo esc_html($price); ?></div>
                     </div>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($date_to): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('End Date')); ?></div>
-                        <div class="info-value"><?php echo date_i18n(get_option('date_format'), strtotime($date_to)); ?></div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($location): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('Location')); ?></div>
-                        <div class="info-value"><?php echo esc_html($location); ?></div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($contact_email): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('Email')); ?></div>
-                        <div class="info-value"><a href="mailto:<?php echo esc_attr($contact_email); ?>"><?php echo esc_html($contact_email); ?></a></div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($contact_phone): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('Phone')); ?></div>
-                        <div class="info-value"><a href="tel:<?php echo esc_attr($contact_phone); ?>"><?php echo esc_html($contact_phone); ?></a></div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($website_url): ?>
-                <div class="listing-info-item">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/>
-                    </svg>
-                    <div class="info-content">
-                        <div class="info-label"><?php echo esc_html($travel_listings_instance->translate('Website')); ?></div>
-                        <div class="info-value"><a href="<?php echo esc_url($website_url); ?>" target="_blank" rel="noopener"><?php echo esc_html(parse_url($website_url, PHP_URL_HOST)); ?></a></div>
-                    </div>
-                </div>
-                <?php endif; ?>
-            </div>
             
-            <div class="listing-contact-buttons">
-                <?php if ($contact_phone): ?>
-                <a href="tel:<?php echo esc_attr($contact_phone); ?>" class="contact-btn contact-btn-primary">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
-                    <?php echo esc_html($travel_listings_instance->translate('Call Now')); ?>
-                </a>
-                <?php endif; ?>
+                <div class="listing-contact-buttons">
+                    <?php if ($contact_email): ?>
+                    <a href="mailto:<?php echo esc_attr($contact_email); ?>" class="contact-btn contact-btn-secondary">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        <?php echo esc_html($travel_listings_instance->translate('Email')); ?>
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if ($contact_phone): ?>
+                    <a href="tel:<?php echo esc_attr($contact_phone); ?>" class="contact-btn contact-btn-primary">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        <?php echo esc_html($travel_listings_instance->translate('Call Now')); ?>
+                    </a>
+                    <?php endif; ?>
                 
-                <?php if ($website_url): ?>
-                <a href="<?php echo esc_url($website_url); ?>" target="_blank" rel="noopener" class="contact-btn contact-btn-secondary">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-                    </svg>
-                    <?php echo esc_html($travel_listings_instance->translate('Visit Website')); ?>
-                </a>
-                <?php endif; ?>
+                    <?php if ($website_url): ?>
+                    <a href="<?php echo esc_url($website_url); ?>" target="_blank" rel="noopener" class="contact-btn contact-btn-secondary">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                        </svg>
+                        <?php echo esc_html($travel_listings_instance->translate('Visit Website')); ?>
+                    </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </aside>
     </div>
