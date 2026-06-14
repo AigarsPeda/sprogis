@@ -737,6 +737,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     min-height: 0;
     padding: 0 0 2px !important;
     margin: 0 !important;
@@ -1785,17 +1786,28 @@ select.filter-input {
 
 .featured-categories-row {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     align-items: center;
     position: relative;
     gap: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     margin: 8px 0 24px;
-    padding: 0;
+    padding: 0 0 12px;
     border: none;
     background: transparent;
     border-radius: 0;
     box-shadow: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.featured-categories-row::-webkit-scrollbar {
+    display: none;
 }
 
 .featured-category-chip {
@@ -1803,6 +1815,7 @@ select.filter-input {
     -webkit-appearance: none;
     -webkit-tap-highlight-color: transparent;
     position: relative;
+    flex-shrink: 0;
     border: none;
     background: transparent;
     color: #475569;
@@ -1811,6 +1824,7 @@ select.filter-input {
     font-size: 20px;
     font-weight: 300;
     line-height: 1;
+    white-space: nowrap;
     cursor: pointer;
     transition: color 0.2s ease, opacity 0.2s ease;
     opacity: 0.92;

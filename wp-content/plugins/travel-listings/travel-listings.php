@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Travel Listings
  * Description: A custom plugin to display travel/event listings with date range filtering
- * Version: 1.0.2
+ * Version: 1.0.3
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: A.Pēda
@@ -219,7 +219,7 @@ class Travel_Listings {
             return (string) filemtime($asset_path);
         }
 
-        return '1.0.2';
+        return '1.0.3';
     }
 
     /**
@@ -1340,7 +1340,6 @@ class Travel_Listings {
             $categories = get_terms(array(
                 'taxonomy'   => 'listing_category',
                 'hide_empty' => true,
-                'number'     => 3,
             ));
 
             if (!empty($categories) && !is_wp_error($categories)) {
@@ -1370,7 +1369,7 @@ class Travel_Listings {
             );
         }
 
-        return array_slice($labels, 0, 3);
+        return $labels;
     }
 
     /**
