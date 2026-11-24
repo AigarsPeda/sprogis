@@ -44,6 +44,8 @@
     background:white linear-gradient(white,#f1f6fa);color:var(--ink);
     font-size:15px;line-height:1.25;font-weight:700;text-align:center;
 }
+@media(max-width:1099px) {.sp-tabs .sp-tab[data-wide-only] {display:none}}
+@media(min-width:1100px) {.sp-tabs-expand .sp-more {display:none}}
 .sp-tab > span {max-width:100%;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
 .sp-more summary {list-style:none;cursor:pointer;height:100%}
 .sp-more summary::-webkit-details-marker {display:none}
@@ -63,7 +65,14 @@
 .sp-tabs .sp-tab[aria-current] {border-color:#086eb0;background:#005d9d linear-gradient(160deg,#087ac3,#005d9d);color:white}
 .sp-tabs .sp-tab[aria-current]::after {
     content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
-    border:7px solid transparent;border-top-color:#005d9d;border-bottom:0;
+    border:7px solid transparent;border-top-color:#005d9d;border-bottom:0;pointer-events:none;
+}
+@keyframes sp-pointer-slide {
+    from {translate:var(--pointer-from) 0}
+    to {translate:0 0}
+}
+@media (min-width:601px) and (prefers-reduced-motion:no-preference) {
+    .sp-tabs .sp-pointer-slide[aria-current]::after {animation:sp-pointer-slide 300ms cubic-bezier(.22,.7,.25,1)}
 }
 .sp-tabs .sp-tab:focus:not(:focus-visible) {outline:none}
 .sp-tabs .sp-tab:focus-visible {outline:3px solid var(--blue);outline-offset:-4px}
@@ -145,7 +154,16 @@
 .sp-details-side strong {font-size:30px;line-height:1.1}
 .sp-details-side .sp-action {margin-top:8px}
 .sp-article figure img {max-width:100%;height:auto}
-[data-sp-browser][aria-busy="true"] .sp-offers {opacity:.65}
+.sp-filter-error {padding:12px 0;color:var(--ink)}
+@keyframes sp-results-in {
+    from {opacity:.45;translate:0 5px}
+    to {opacity:1;translate:0 0}
+}
+@media(prefers-reduced-motion:no-preference) {
+    .sp-results-enter :is(.sp-card,.sp-empty) {animation:sp-results-in 200ms ease-out backwards}
+    .sp-results-enter .sp-card:nth-child(2) {animation-delay:20ms}
+    .sp-results-enter .sp-card:nth-child(n+3) {animation-delay:40ms}
+}
 @media(max-width:900px) {
     .sp-tabs .sp-tab {padding-inline:13px}
     .sp-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}

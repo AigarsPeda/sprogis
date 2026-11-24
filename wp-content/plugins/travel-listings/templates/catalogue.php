@@ -3,16 +3,25 @@ defined('ABSPATH') || exit;
 $data = spro_catalogue_data($atts);
 $base = is_tax('listing_category') ? get_term_link(get_queried_object()) : (is_post_type_archive('travel_listing') ? get_post_type_archive_link('travel_listing') : get_permalink(get_queried_object_id()));
 $base = add_query_arg('lang', $this->get_current_language(), $base);
-$terms = get_terms(['taxonomy'=>'listing_category','hide_empty'=>true]);
+$terms = get_terms(['taxonomy'=>'listing_category','hide_empty'=>false]);
 $featured = [];
 $other = [];
-foreach ($terms as $term) {
+foreach (is_wp_error($terms) ? [] : $terms as $term) {
     if (get_term_meta($term->term_id, '_travel_featured_category', true) === '1') {
         $featured[] = $term;
     } else {
         $other[] = $term;
     }
 }
+// Keep explicitly ordered featured tabs first, retaining name order for other featured terms.
+$rank = [];
+foreach ($featured as $term) {
+    $position = get_term_meta($term->term_id, '_spro_tab_order', true);
+    $rank[$term->term_id] = is_numeric($position) ? (int) $position : PHP_INT_MAX;
+}
+usort($featured, static function ($a, $b) use ($rank) {
+    return ($rank[$a->term_id] <=> $rank[$b->term_id]) ?: strnatcasecmp($a->name, $b->name);
+});
 $terms = array_merge($featured, $other);
 $fields = $data['schema']['enabled'];
 $values = $data['values'];
@@ -24,7 +33,7 @@ $label_reset = spro_text('Notīrīt filtrus','Clear filters','Сбросить �
 
 ?>
 <div class="sp-catalogue">
-<?php if ($atts['show_hero'] === 'yes'): ?>
+<?php if ($atts['show_hero'] === 'yes' && ($_SERVER['HTTP_X_SPRO_CATALOGUE'] ?? '') !== '1'): ?>
 <section class="sp-hero">
     <?php if ($hero): ?><img class="sp-hero-photo" fetchpriority="high" src="<?php echo esc_url($hero); ?>" alt=""><?php endif; ?>
     <div class="sp-wrap sp-hero-inner">
@@ -72,6 +81,7 @@ $label_reset = spro_text('Notīrīt filtrus','Clear filters','Сбросить �
     </form>
 </section>
 <?php endif; ?>
+<p data-sp-status role="status" class="screen-reader-text" data-error="<?php echo esc_attr(spro_text('Neizdevās ielādēt piedāvājumus.', 'Could not load offers.', 'Не удалось загрузить предложения.')); ?>" data-retry="<?php echo esc_attr(spro_text('Mēģināt vēlreiz', 'Try again', 'Попробовать ещё раз')); ?>"></p>
 <section class="sp-offers" id="offers" tabindex="-1" aria-label="<?php echo esc_attr(spro_text('Piedāvājumi','Offers','Предложения') . ' · ' . $data['count']); ?>">
     <div class="sp-offers-head">
         <?php if ($filtered && $data['ids']): ?>

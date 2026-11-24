@@ -10,11 +10,18 @@
     }
   });
   function showSelectedFields() {
-    document.querySelectorAll('[data-filter-term]').forEach(group => {
-      const boxes = document.querySelectorAll('input[name="tax_input[listing_category][]"][value="' + group.dataset.filterTerm + '"]');
-      group.hidden = boxes.length > 0 && !Array.from(boxes).some(box => box.checked);
+    const panel = document.getElementById('spro-search-values');
+    if (!panel) return;
+    const categories = document.getElementById('listing_categorychecklist');
+    if (!categories) return;
+    const selected = new Set(Array.from(categories.querySelectorAll('input:checked'), box => box.value));
+    panel.querySelectorAll('[data-filter-term]').forEach(group => {
+      group.hidden = !selected.has(group.dataset.filterTerm);
     });
+    panel.hidden = !panel.querySelector('[data-filter-term]:not([hidden])');
   }
-  document.addEventListener('change', showSelectedFields);
+  document.addEventListener('change', event => {
+    if (event.target.closest('#listing_categorydiv')) showSelectedFields();
+  });
   showSelectedFields();
 })();

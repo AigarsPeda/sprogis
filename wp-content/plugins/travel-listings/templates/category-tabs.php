@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-// Allow six controls, including All and, when needed, More.
+// Keep the compact layout within six controls.
 $primary = $terms;
 $extra = [];
 if (count($terms) > 5) {
@@ -17,14 +17,15 @@ if (count($terms) > 5) {
         }
     }
 }
+$expand_on_desktop = $extra && count($terms) <= 7;
 $more_label = spro_text('Vēl', 'More', 'Ещё');
 ?>
-<nav class="sp-tabs" aria-label="<?php echo esc_attr(spro_text('Kategorijas','Categories','Категории')); ?>">
+<nav class="sp-tabs<?php if ($expand_on_desktop) echo ' sp-tabs-expand'; ?>" aria-label="<?php echo esc_attr(spro_text('Kategorijas','Categories','Категории')); ?>">
     <a class="sp-tab" data-sp-link href="<?php echo esc_url($base . '#trip-search'); ?>" <?php if (!$data['slug']) echo 'aria-current="true"'; ?>>
         <?php echo spro_icon('grid', 18); ?><span><?php echo esc_html($label_all); ?></span>
     </a>
-    <?php foreach ($primary as $term): ?>
-        <a class="sp-tab" data-sp-link title="<?php echo esc_attr($term->name); ?>" href="<?php echo esc_url(add_query_arg('trip_category', $term->slug, $base) . '#trip-search'); ?>" <?php if ($term->slug === $data['slug']) echo 'aria-current="true"'; ?>>
+    <?php foreach (($expand_on_desktop ? $terms : $primary) as $term): ?>
+        <a class="sp-tab" <?php if ($expand_on_desktop && !in_array($term, $primary, true)) echo 'data-wide-only'; ?> data-sp-link title="<?php echo esc_attr($term->name); ?>" href="<?php echo esc_url(add_query_arg('trip_category', $term->slug, $base) . '#trip-search'); ?>" <?php if ($term->slug === $data['slug']) echo 'aria-current="true"'; ?>>
             <?php echo spro_icon(spro_term_icon($term), 19); ?><span><?php echo esc_html($term->name); ?></span>
         </a>
     <?php endforeach; ?>

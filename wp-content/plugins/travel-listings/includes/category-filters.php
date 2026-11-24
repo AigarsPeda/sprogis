@@ -56,24 +56,30 @@ function spro_save_category_filters($term_id) {
 add_action('created_listing_category', 'spro_save_category_filters');
 add_action('edited_listing_category', 'spro_save_category_filters');
 
-function spro_listing_filter_box($post) {
+function spro_listing_filter_box($post, $box) {
     wp_nonce_field('spro_listing_filters', 'spro_listing_filter_nonce', false);
-    $terms = get_terms(['taxonomy'=>'listing_category', 'hide_empty'=>false]);
     echo '<p>Set the values for the categories selected on this listing. Create custom fields under Travel Listings → Categories.</p>';
-    foreach ($terms as $term) {
-        $fields = spro_category_filters($term->term_id)['custom'];
-        if (!$fields) {
-            continue;
-        }
-        printf('<fieldset data-filter-term="%d"><legend><strong>%s</strong></legend>', $term->term_id, esc_html($term->name));
-        foreach ($fields as $key => $label) {
+    foreach ($box['args'] as $term_id => $group) {
+        printf('<fieldset data-filter-term="%d"><legend><strong>%s</strong></legend>', $term_id, esc_html($group['name']));
+        foreach ($group['fields'] as $key => $label) {
             printf('<p><label>%s<br><input class="regular-text" name="spro_values[%s]" value="%s"></label></p>', esc_html($label), esc_attr($key), esc_attr(get_post_meta($post->ID, '_travel_filter_' . $key, true)));
         }
         echo '</fieldset>';
     }
 }
 add_action('add_meta_boxes_travel_listing', static function () {
-    add_meta_box('spro-search-values', 'Category filter values', 'spro_listing_filter_box', 'travel_listing');
+    $terms = get_terms(['taxonomy'=>'listing_category', 'hide_empty'=>false]);
+    if (is_wp_error($terms)) return;
+    $groups = [];
+    foreach ($terms as $term) {
+        $fields = spro_category_filters($term->term_id)['custom'];
+        if ($fields) {
+            $groups[$term->term_id] = ['name'=>$term->name, 'fields'=>$fields];
+        }
+    }
+    if ($groups) {
+        add_meta_box('spro-search-values', 'Category filter values', 'spro_listing_filter_box', 'travel_listing', 'advanced', 'default', $groups);
+    }
 });
 add_action('save_post_travel_listing', static function ($post_id) {
     if (empty($_POST['spro_listing_filter_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['spro_listing_filter_nonce'])), 'spro_listing_filters') || !current_user_can('edit_post', $post_id) || wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {

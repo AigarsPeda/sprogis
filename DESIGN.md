@@ -4,4 +4,4 @@ The existing SproTravel wordmark anchors a white navigation bar. A destination p
 
 Cards lead with a replaceable featured photograph. Show the listing's category, location, title, dates and price when available. Listing detail pages share the same header, palette and typography. On small screens, arrange category tabs in a three-column grid and stack the search controls.
 
-Keep the category bar to six controls. When there are more categories, keep featured categories first and expose the remainder under More. Selecting an extra category moves it into the visible bar.
+On wide screens show all seven catalogue categories alongside All. Keep the compact bar to six controls. When there are more categories, keep featured categories first and expose the remainder under More. Selecting an extra category moves it into the visible bar.

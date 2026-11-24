@@ -6,6 +6,22 @@ $home = add_query_arg('lang', $lang, home_url('/'));
 $section_base = is_front_page() ? '' : $home;
 $logo = plugins_url('assets/images/sprotravel-logo.jpg', dirname(__DIR__) . '/travel-listings.php');
 $offers = spro_text('Piedāvājumi', 'Offers', 'Предложения');
+// The same listing block supplies both direct page visits and in-place filtering.
+if (is_page() || is_archive()) {
+    header('Vary: X-Spro-Catalogue', false);
+    if (($_SERVER['HTTP_X_SPRO_CATALOGUE'] ?? '') === '1') {
+        nocache_headers();
+        if (is_archive()) {
+            echo do_shortcode('[travel_listings]');
+        } else {
+            while (have_posts()) {
+                the_post();
+                the_content();
+            }
+        }
+        return;
+    }
+}
 ?><!doctype html>
 <html class="sp-document" lang="<?php echo esc_attr($lang); ?>">
 <head><meta charset="<?php bloginfo('charset'); ?>"><meta name="viewport" content="width=device-width,initial-scale=1"><?php wp_head(); ?></head>

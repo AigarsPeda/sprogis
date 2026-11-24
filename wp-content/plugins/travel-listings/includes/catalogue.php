@@ -12,6 +12,8 @@ function spro_icon($name, $size = 20) {
         'compass'=>'<circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/>',
         'pin'=>'<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.2"/>',
         'plane'=>'<path d="m21 3-6 18-4-8-8-4 18-6ZM11 13l6-6"/>',
+        'ship'=>'<path d="M5 13V7h14v6M9 7V4h6v3M3 14l9-3 9 3-3 5m-12 0-3-5m9-3v7M2 20q2.5 2 5 0 2.5 2 5 0 2.5 2 5 0 2.5 2 5 0"/>',
+        'family'=>'<circle cx="9" cy="7" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M2 20v-2a7 7 0 0 1 14 0v2m1-6a5 5 0 0 1 5 5v1"/>',
         'mountain'=>'<path d="m2 20 7-13 4 7 3-5 6 11Zm4-7 3 2 2-3"/>',
         'music'=>'<path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="17" cy="16" rx="3" ry="2.5"/>',
         'trophy'=>'<path d="M8 3h8v5c0 4-2 6-4 6s-4-2-4-6V3Zm0 2H4v2a4 4 0 0 0 5 4m7-6h4v2a4 4 0 0 1-5 4m-3 3v5m-4 2h8"/>',
@@ -30,7 +32,7 @@ function spro_icon($name, $size = 20) {
     return sprintf('<svg aria-hidden="true" focusable="false" width="%1$d" height="%1$d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">%2$s</svg>', absint($size), $paths[$name] ?? $paths['compass']);
 }
 function spro_term_icon($term) {
-    $icons = ['concerts'=>'music','sports'=>'trophy','hockey'=>'trophy','football'=>'trophy','lidojumi'=>'plane','pargajieni'=>'mountain','ballites'=>'party'];
+    $icons = ['concerts'=>'music','sports'=>'trophy','hockey'=>'trophy','football'=>'trophy','lidojumi'=>'plane','pargajieni'=>'mountain','ballites'=>'party','kruizi'=>'ship','gimenem'=>'family'];
     return $term ? ($icons[$term->slug] ?? 'compass') : 'grid';
 }
 function spro_price($id) {

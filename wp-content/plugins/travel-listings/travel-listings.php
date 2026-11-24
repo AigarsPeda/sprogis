@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/includes/category-filters.php';
 require_once __DIR__ . '/includes/catalogue.php';
+require_once __DIR__ . '/includes/search-metadata.php';
 
 class Travel_Listings {
 
@@ -179,7 +180,7 @@ class Travel_Listings {
         add_action('init', array($this, 'register_post_type'));
         add_action('init', array($this, 'register_blocks'));
         add_action('init', array($this, 'handle_language_switch'));
-        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
+        add_action('add_meta_boxes_travel_listing', array($this, 'add_meta_boxes'));
         add_action('save_post', array($this, 'save_meta_boxes'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
@@ -317,7 +318,7 @@ class Travel_Listings {
      * Handle language switch via URL parameter
      */
     public function handle_language_switch() {
-        if (isset($_GET['lang']) && array_key_exists($_GET['lang'], $this->languages)) {
+        if (isset($_GET['lang']) && is_string($_GET['lang']) && array_key_exists($_GET['lang'], $this->languages)) {
             setcookie('travel_listings_lang', sanitize_text_field($_GET['lang']), time() + (365 * 24 * 60 * 60), '/');
             $_COOKIE['travel_listings_lang'] = sanitize_text_field($_GET['lang']);
         }
@@ -327,7 +328,7 @@ class Travel_Listings {
      * Get current language
      */
     public function get_current_language() {
-        if (isset($_COOKIE['travel_listings_lang']) && array_key_exists($_COOKIE['travel_listings_lang'], $this->languages)) {
+        if (isset($_COOKIE['travel_listings_lang']) && is_string($_COOKIE['travel_listings_lang']) && array_key_exists($_COOKIE['travel_listings_lang'], $this->languages)) {
             return $_COOKIE['travel_listings_lang'];
         }
         return $this->default_language;
@@ -679,6 +680,8 @@ class Travel_Listings {
             <label for="travel_listing_featured_category"><?php _e('Featured category', 'travel-listings'); ?></label>
             <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1">
             <p><?php _e('Show this category first in the search tabs.', 'travel-listings'); ?></p>
+            <label for="spro_tab_order"><?php _e('Featured tab order', 'travel-listings'); ?></label>
+            <input type="number" min="1" id="spro_tab_order" name="spro_tab_order">
         </div>
         <?php
     }
@@ -698,6 +701,8 @@ class Travel_Listings {
                     <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1" <?php checked($is_featured, '1'); ?>>
                     <?php _e('Show this category first in the search tabs.', 'travel-listings'); ?>
                 </label>
+                <p><label for="spro_tab_order"><?php _e('Featured tab order', 'travel-listings'); ?></label><br>
+                <input type="number" min="1" id="spro_tab_order" name="spro_tab_order" value="<?php echo esc_attr(get_term_meta($term->term_id, '_spro_tab_order', true)); ?>"></p>
             </td>
         </tr>
         <?php
@@ -707,12 +712,20 @@ class Travel_Listings {
      * Save featured category term meta.
      */
     public function save_category_featured_meta($term_id) {
-        if (!current_user_can('manage_categories')) {
+        if (!current_user_can('manage_categories') || !isset($_POST['spro_filter_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['spro_filter_nonce'])), 'spro_category_filters')) {
             return;
         }
 
         $is_featured = isset($_POST['travel_listing_featured_category']) ? '1' : '0';
         update_term_meta($term_id, '_travel_featured_category', $is_featured);
+        if (isset($_POST['spro_tab_order'])) {
+            $order = filter_var(wp_unslash($_POST['spro_tab_order']), FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+            if ($order) {
+                update_term_meta($term_id, '_spro_tab_order', $order);
+            } else {
+                delete_term_meta($term_id, '_spro_tab_order');
+            }
+        }
     }
 
     /**
@@ -739,6 +752,9 @@ class Travel_Listings {
      * Add Meta Boxes for date fields
      */
     public function add_meta_boxes() {
+        remove_meta_box('postcustom', 'travel_listing', 'normal');
+        remove_meta_box('astra_settings_meta_box', 'travel_listing', 'side');
+
         add_meta_box(
             'travel_listing_dates',
             __('📅 Listing Dates (Required)', 'travel-listings'),
