@@ -13,6 +13,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once __DIR__ . '/includes/category-filters.php';
+require_once __DIR__ . '/includes/catalogue.php';
+
 class Travel_Listings {
 
     /**
@@ -387,6 +390,12 @@ class Travel_Listings {
      * Register Settings
      */
     public function register_settings() {
+        register_setting('travel_listings_settings', 'travel_listings_default_filters', [
+            'type' => 'array',
+            'sanitize_callback' => static function ($values) {
+                return array_values(array_intersect(spro_filter_keys(), (array) $values));
+            },
+        ]);
         // Register settings for each language
         foreach ($this->languages as $code => $name) {
             register_setting('travel_listings_settings', 'travel_listings_hero_title_' . $code);
@@ -519,6 +528,12 @@ class Travel_Listings {
                     </tr>
                 </table>
 
+                <h2>Default search filters</h2>
+                <p>These fields appear under All and in categories without their own settings.</p>
+                <input type="hidden" name="travel_listings_default_filters[]" value="">
+                <?php foreach (spro_filter_labels() as $key => $label): ?>
+                    <p><label><input type="checkbox" name="travel_listings_default_filters[]" value="<?php echo esc_attr($key); ?>" <?php checked(in_array($key, spro_category_filters(0)['enabled'], true)); ?>> <?php echo esc_html($label); ?></label></p>
+                <?php endforeach; ?>
                 <?php submit_button(); ?>
             </form>
 
@@ -663,7 +678,7 @@ class Travel_Listings {
         <div class="form-field term-featured-wrap">
             <label for="travel_listing_featured_category"><?php _e('Featured category', 'travel-listings'); ?></label>
             <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1">
-            <p><?php _e('Show this category as a quick filter below the main filters.', 'travel-listings'); ?></p>
+            <p><?php _e('Show this category first in the search tabs.', 'travel-listings'); ?></p>
         </div>
         <?php
     }
@@ -681,7 +696,7 @@ class Travel_Listings {
             <td>
                 <label for="travel_listing_featured_category">
                     <input type="checkbox" id="travel_listing_featured_category" name="travel_listing_featured_category" value="1" <?php checked($is_featured, '1'); ?>>
-                    <?php _e('Show this category as a quick filter below the main filters.', 'travel-listings'); ?>
+                    <?php _e('Show this category first in the search tabs.', 'travel-listings'); ?>
                 </label>
             </td>
         </tr>
@@ -1165,6 +1180,12 @@ class Travel_Listings {
      * Enqueue Frontend Scripts and Styles
      */
     public function enqueue_scripts() {
+        if (spro_catalogue_surface()) {
+            wp_enqueue_style('spro-font', plugins_url('assets/fonts/dm-sans.css', __FILE__), [], '1');
+            wp_enqueue_style('spro-catalogue', plugins_url('assets/css/catalogue.css', __FILE__), ['spro-font'], $this->get_asset_version('assets/css/catalogue.css'));
+            wp_enqueue_script('spro-catalogue', plugins_url('assets/js/catalogue.js', __FILE__), [], $this->get_asset_version('assets/js/catalogue.js'), true);
+            return;
+        }
         wp_register_style(
             'travel-listings-style',
             plugin_dir_url(__FILE__) . 'assets/css/travel-listings.css',
@@ -1296,6 +1317,12 @@ class Travel_Listings {
             'show_hero'      => 'yes',
         ), $atts);
 
+        if (spro_catalogue_surface()) {
+            ob_start();
+            include __DIR__ . '/templates/catalogue.php';
+            return ob_get_clean();
+        }
+
         ob_start();
 
         $show_filter_lab = $atts['show_hero'] === 'yes' && (!empty($atts['hero_title']) || !empty($atts['hero_image']));
@@ -1416,7 +1443,13 @@ class Travel_Listings {
                             <div class="travel-filter-variant-form__hero">
                                 <div class="travel-hero-language-switcher travel-language-switcher travel-lang-dropdown"><button type="button" class="lang-dropdown-toggle" aria-expanded="false" aria-haspopup="true"><span class="lang-current"><?php echo esc_html(strtoupper($current_lang)); ?></span><svg class="lang-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-menu"><?php foreach ($this->languages as $code => $name): ?><a href="<?php echo esc_url(add_query_arg('lang', $code, $current_url)); ?>" class="lang-dropdown-item <?php echo $current_lang === $code ? 'active' : ''; ?>"><span class="lang-code"><?php echo esc_html(strtoupper($code)); ?></span><span class="lang-name"><?php echo esc_html($name); ?></span></a><?php endforeach; ?></div></div>
                                 <div class="travel-filter-variant-form__hero-copy">
-                                    <strong class="travel-filter-variant-form__hero-title"><?php echo esc_html($atts['hero_title']); ?></strong>
+                                    <?php if (is_front_page()): ?>
+                                        <img class="travel-filter-variant-form__hero-logo"
+                                             src="<?php echo esc_url(plugins_url('assets/images/sprotravel-logo.jpg', __FILE__)); ?>"
+                                             alt="SproTravel" width="1600" height="585">
+                                    <?php else: ?>
+                                        <strong class="travel-filter-variant-form__hero-title"><?php echo esc_html($atts['hero_title']); ?></strong>
+                                    <?php endif; ?>
                                     <?php if (!empty($atts['hero_subtitle'])): ?>
                                         <p class="travel-filter-variant-form__hero-text"><?php echo esc_html($atts['hero_subtitle']); ?></p>
                                     <?php endif; ?>
@@ -1971,7 +2004,7 @@ class Travel_Listings {
      * Extract numeric value from price string
      * Examples: "€99" -> 99, "Free" -> 0, "150.50" -> 150.50, "$200" -> 200
      */
-    private function extract_price_value($price_string) {
+    public function extract_price_value($price_string) {
         if (empty($price_string)) {
             return 0;
         }

@@ -153,3 +153,32 @@ git diff -- wp-content/plugins/travel-listings
 ```
 
 
+## Syncing SproTravel content
+
+Start Sprogis in Local, then run these commands from the repository on this Mac.
+The scripts use the existing SSH identity for the SproTravel Droplet and its WordPress installation at `/var/www/sprotravel`. Set `REMOTE_HOST`, `REMOTE_WP_PATH`, or `SSH_KEY` to override the connection. The Droplet needs PHP and rsync. The Local installation supplies WP-CLI.
+
+```bash
+./scripts/sync-content.py pull
+./scripts/sync-content.py pull --apply
+```
+
+The first command previews the live content counts. The second replaces Local's posts, pages, listings, media library, taxonomies, comments and uploads, and copies homepage settings. It localizes URLs and preserves WordPress record IDs, including image references in blocks. Local keeps its users, active plugins and theme configuration. Posts whose live author has no matching local login are assigned to a local administrator.
+
+Each applied pull saves a full local database dump and the previous uploads directory under `~/Local Sites/sprogis/sync-backups/before-pull-*`. To restore a backup, set `backup` to the printed directory and run the following from the repository. This restores Local to that point in time. Pull again before pushing edits from a restored site.
+
+```bash
+gzip -dc "$backup/local.sql.gz" | ./scripts/local-wp.sh db import -
+rsync -rt --delete "$backup/uploads/" "$HOME/Local Sites/sprogis/app/public/wp-content/uploads/"
+./scripts/local-wp.sh cache flush
+```
+
+To publish edits to an existing travel listing, find its local ID and preview the changes. For example, listing 51 is Koncerti.
+
+```bash
+./scripts/local-wp.sh post list --post_type=travel_listing --fields=ID,post_title
+./scripts/sync-content.py push 51
+./scripts/sync-content.py push 51 --apply
+```
+
+A push updates only the selected listing's changed title, text, status, slug, travel fields, categories or featured image. The category or image must already exist on the Droplet. The script checks edited fields against their values at the last pull and saves their previous values locally before writing. Code releases use the separate plugin ZIP workflow above.

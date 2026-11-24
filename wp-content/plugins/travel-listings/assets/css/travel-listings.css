@@ -629,6 +629,14 @@
     box-sizing: border-box;
 }
 
+.travel-filter-variant-form__hero-logo {
+    display: block;
+    width: min(340px, 72vw);
+    height: auto;
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
 .travel-filter-variant-form__hero-title {
     display: block;
     color: #ffffff;
@@ -1081,6 +1089,10 @@
         max-width: 100%;
         margin-left: 0;
         margin-right: 0;
+    }
+
+    .home .travel-filter-variant-form__hero {
+        padding-top: 48px;
     }
 
     .travel-filter-variant-form__body {
