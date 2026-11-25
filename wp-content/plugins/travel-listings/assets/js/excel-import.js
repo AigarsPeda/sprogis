@@ -35,6 +35,11 @@
         event.preventDefault();
         zone.style.borderColor = '';
         if (uploading) return;
+        const entry = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.();
+        if (entry?.isDirectory) {
+            reportSelection('package', entry.name);
+            return;
+        }
         if (event.dataTransfer.files.length !== 1) {
             if (event.dataTransfer.files.length > 1) {
                 reportSelection('multiple', event.dataTransfer.files[0].name);

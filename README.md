@@ -157,17 +157,26 @@ git diff -- wp-content/plugins/travel-listings
 
 ### Importing a listings workbook
 
-In WordPress admin, open **Travel Listings → Excel import**. Drop one `.xlsx` workbook onto the upload area or choose it with the file picker. The import starts immediately. Editors and administrators with media upload access can use this page. The result and row-level errors stay in **Import history**.
+In WordPress admin, open **Travel Listings → Excel and Numbers import**. Drop one `.xlsx` or single-file `.numbers` workbook onto the upload area or choose it with the file picker. The import starts immediately. Editors and administrators with media upload access can use this page. The result and row-level errors stay in **Import history**.
 
 Use **Download Excel template** on the import page. Fill in **Listings** from row 2. The **Instructions** tab gives field examples and explains how to correct an upload. Only Post title is required. The importer reads the title, categories (existing names or slugs, comma-separated), travel dates, price, location, status, LV/EN/RU listing text, contact details, display setting and featured image. Dates can be real Excel dates, YYYY-MM-DD or DD.MM.YYYY. An empty status defaults to draft.
 
-Reordered headers and leading blank rows are supported. Keep the listing table on one visible sheet. Other visible sheets without listing headers and hidden sheets are ignored. Within the listing table, hidden and filtered data rows are imported too. Ambiguous headers, multiple listing tables and merged table cells produce a workbook error before any rows are imported. Unknown extra columns generate warnings. Invalid data rows show their cell references and correction instructions. Other valid rows are imported.
+Reordered headers and leading blank rows are supported. Keep the listing table on one visible sheet. Other visible sheets without listing headers and hidden sheets are ignored. Within the listing table, hidden and filtered data rows are imported too. Ambiguous headers, multiple listing tables and merged table cells produce a workbook error before any rows are imported. Unknown extra columns generate warnings. Invalid data rows show their cell references and correction instructions. Other valid rows are imported. For a missing category, open the import report, choose an existing category or create the workbook category, and select **Apply categories and retry rows**. WordPress retains the pending workbook in its private temporary directory for up to 24 hours. The choices apply to that import.
 
-To run the upload regression suite against the running local site, use `python3 scripts/test-excel-import.py` with openpyxl and Pillow installed. It exercises the real admin endpoint using temporary test listings and removes its own data and login session afterward.
+To run the upload regression suite against the running local site, use `python3 scripts/test-excel-import.py` with openpyxl, Pillow and numbers-parser installed. It exercises the real admin endpoint using temporary test listings and removes its own data and login session afterward.
 
 Keep **Post name** stable for each trip, including when editing the listing title or WordPress permalink. When this field is empty, the importer derives a key from the title and start date. Previously imported keys are skipped. Removing a row from a subsequent workbook leaves the listing intact. Imported listings can be edited, but WordPress blocks trash and permanent deletion. A row that fails can be corrected and uploaded again.
 
-For **Featured image**, embed a picture in Excel, anchor a picture in that row and column, or paste a direct HTTP(S) image URL. WordPress saves the image to its Media Library. Numbers may discard cell image fills on Excel export, so when exporting directly from Numbers, use a URL or verify that the exported workbook contains the picture.
+For **Featured image**, embed a picture in Excel, anchor a picture in that row and column, or paste a direct HTTP(S) image URL. WordPress saves the image to its Media Library. In Numbers, place a photo inside the Featured image cell as an image fill, or paste a direct image URL. Floating Numbers canvas objects do not belong to a listing row. Save and upload the .numbers file directly to preserve cell fills.
+
+The Numbers reader requires Python 3.11 or newer and PHP `proc_open`. Set it up once outside the public WordPress directory. From the WordPress root on Linux or macOS run:
+
+```bash
+python3 -m venv ../spro-numbers
+../spro-numbers/bin/pip install -r wp-content/plugins/travel-listings/includes/numbers/requirements.txt
+```
+
+On Ubuntu install `python3-venv` first. For a different virtual environment, set `SPRO_NUMBERS_PYTHON` in wp-config.php to its absolute Python executable path. The server reads Numbers locally. Excel uploads use the existing PHP reader.
 
 ### Synchronizing Local and the live site
 

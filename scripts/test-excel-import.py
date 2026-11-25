@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Exercise the real import endpoint on sprogis.local. Requires openpyxl and Pillow."""
+"""Exercise the real import endpoint on sprogis.local. Requires openpyxl, Pillow and numbers-parser."""
 import datetime
 import html
 import io
 import json
 import re
 import subprocess
+import tempfile
 import uuid
 from pathlib import Path
 from urllib import parse, request
 from zipfile import ZipFile
 
+from numbers_parser import Document
+from numbers_parser.cell import BackgroundImage
 from openpyxl import Workbook, load_workbook
 from openpyxl.drawing.image import Image
 from openpyxl.utils.datetime import CALENDAR_MAC_1904
@@ -159,8 +162,53 @@ def main():
         upload("damaged-photo", damaged.getvalue(), (0, 0, 2), "B3 (Featured image)", "JPEG")
         upload("pictures", images,
                (1, 0, 1), "B2 (Featured image)", "one embedded picture")
+        upload("fake-numbers", b"invalid", (0, 0, 1), "Numbers file", extension="numbers")
+        # A native cell fill must survive a category retry without a second upload.
+        with tempfile.TemporaryDirectory() as folder:
+            native = Document(sheet_name="Listings", num_rows=4, num_cols=4)
+            table = native.sheets[0].tables[0]
+            festival = title("festival")
+            sample = [
+                ["Post title", "Post name", "Categories", "Featured image"],
+                [title("native"), title("native"), festival + ", alternate-sport"],
+                [title("minimal"), title("minimal")],
+                [title("bad-native"), title("bad-native"), festival],
+            ]
+            for r, values in enumerate(sample):
+                for c, value in enumerate(values):
+                    table.write(r, c, value)
+            table.write(3, 4, "invalid")
+            table.write(0, 4, "Travel date from")
+            picture = io.BytesIO()
+            PILImage.new("RGB", (30, 24), "green").save(picture, "PNG")
+            style = native.add_style(name="Test image", bg_image=BackgroundImage(picture.getvalue(), "photo.png"))
+            table.set_cell_style("D2", style)
+            path = Path(folder) / "sample.numbers"
+            native.save(path)
+            contents = path.read_bytes()
+        upload("native", contents, (0, 1, 2), "Unknown category", extension="numbers")
+        run, name, _, _ = checked[-1]
+        def resolve(choices):
+            page = opener.open(ADMIN + "&run=" + str(run)).read().decode()
+            form = re.search(r'<form [^>]*action="([^"]+)"[^>]*>(?:(?!</form>).)*?value="spro_resolve_categories"(?:(?!</form>).)*?</form>', page, re.S)
+            nonce = re.search(r'name="_wpnonce" value="([^"]+)"', form[0])[1]
+            body = {"action": "spro_resolve_categories", "run": run, "_wpnonce": nonce, **choices}
+            return opener.open(form[1], parse.urlencode(body).encode()).read().decode()
+
+        sports = wp("term", "get", "listing_category", "sports", "--by=slug", "--field=term_id")
+        result_page = resolve({"category[0]": "create", "category[1]": sports})
+        assert "1 created, 1 skipped, 1 error" in result_page
+        checked[-1] = (run, name, (1, 1, 1), ["E4", "date"])
+        native_meta = json.loads(wp("eval", f"""
+            $id=spro_import_existing('{title("native")}','_spro_import_key');
+            echo wp_json_encode([get_post_status($id), has_term('sports','listing_category',$id),
+                has_term('{festival}','listing_category',$id), (bool)get_post_thumbnail_id($id),
+                metadata_exists('post',{run},'_spro_pending_categories')]);
+        """))
+        assert native_meta == ["draft", True, True, True, False]
+        upload("native-repeat", contents, (0, 2, 1), "E4", extension="numbers")
         history = opener.open(ADMIN, timeout=30).read().decode()
-        assert "View errors" in history and "one embedded picture" in history
+        assert "View errors" in history and "E4" in history
         run_ids = json.dumps([x[0] for x in checked])
         persisted = json.loads(wp("eval", f"""
             $out=[];foreach ({run_ids} as $id)
@@ -195,6 +243,8 @@ def main():
                     wp_delete_attachment($attachment,true);
                 delete_post_meta($id,'_spro_import_key');wp_delete_post($id,true);
             }}
+            $term = get_term_by('slug','{title("festival")}','listing_category');
+            if($term) wp_delete_term($term->term_id,'listing_category');
             WP_Session_Tokens::get_instance({user})->destroy('{auth[0]}');
         """)
 

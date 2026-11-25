@@ -93,7 +93,7 @@ function spro_import_photo($book, $part, $url, $post_id, $slug) {
     }
 }
 
-function spro_import_row($book, $row, &$seen = []) {
+function spro_import_row($book, $row, &$seen = [], $category_map = [], &$missing = []) {
     list($data, $image, $errors) = $row;
     $columns = $row[3] ?? [];
     $number = $row[4] ?? 0;
@@ -136,9 +136,14 @@ function spro_import_row($book, $row, &$seen = []) {
         if ($name === '') {
             continue;
         }
+        if (isset($category_map[$name])) {
+            $terms[] = $category_map[$name];
+            continue;
+        }
         $term = get_term_by('slug', $name, 'listing_category') ?: get_term_by('name', $name, 'listing_category');
         if (!$term) {
-            $issue('categories', "Unknown category “{$name}”. Use a name or slug from Travel Listings → Categories, or leave blank.");
+            $missing[$name] = true;
+            $issue('categories', "Unknown category “{$name}”. Choose a category in this report or correct the workbook.");
             continue;
         }
         $terms[] = (int) $term->term_id;
