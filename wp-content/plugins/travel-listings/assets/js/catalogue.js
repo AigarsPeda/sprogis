@@ -154,3 +154,30 @@
         });
     });
 })();
+
+/* Trip page on phones: show the bottom Reserve bar only while neither Reserve button is on screen. */
+(function () {
+    var bar = document.querySelector('[data-sp-sticky]');
+    var anchors = document.querySelectorAll('.sp-trip-bar, .sp-trip-reserve');
+    if (!bar || !anchors.length || !('IntersectionObserver' in window)) {
+        return;
+    }
+    bar.setAttribute('data-armed', '');
+    var onScreen = new Set();
+    bar.inert = true;
+    var watcher = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                onScreen.add(entry.target);
+            } else {
+                onScreen.delete(entry.target);
+            }
+        });
+        var show = onScreen.size === 0;
+        bar.classList.toggle('is-visible', show);
+        bar.inert = !show;
+    });
+    anchors.forEach(function (anchor) {
+        watcher.observe(anchor);
+    });
+})();

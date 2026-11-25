@@ -111,6 +111,8 @@ $button = static function ($action, $class) {
             <?php if ($price !== ''): ?>
                 <p class="sp-trip-price"><b><?php echo esc_html($price); ?></b><?php if ($price_note): ?><small><?php echo esc_html($price_note); ?></small><?php endif; ?></p>
             <?php endif; ?>
+            <?php // Phones show Reserve here; the bottom bar appears once this card scrolls away. ?>
+            <?php if ($reserve) $button($reserve, 'sp-trip-cta sp-trip-bar-cta'); ?>
         </section>
 
         <div class="sp-trip-body">
@@ -201,7 +203,7 @@ $button = static function ($action, $class) {
     <?php endif; ?>
     <?php $sticky = $reserve ?: $primary; ?>
     <?php if ($sticky): ?>
-        <div class="sp-trip-sticky">
+        <div class="sp-trip-sticky" data-sp-sticky>
             <?php if ($price !== ''): ?><p class="sp-trip-price"><b><?php echo esc_html($price); ?></b><?php if ($price_note): ?><small><?php echo esc_html($price_note); ?></small><?php endif; ?></p><?php endif; ?>
             <?php $button($sticky, 'sp-trip-cta'); ?>
         </div>

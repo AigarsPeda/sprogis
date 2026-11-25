@@ -108,9 +108,13 @@
 .sp-offers-head {display:flex;align-items:center;gap:14px;margin-bottom:12px}
 .sp-offers-head>a,.sp-empty a {text-decoration:underline;text-underline-offset:3px;color:var(--blue)}
 .sp-sort {margin-inline-start:auto}
-.sp-sort summary {color:var(--muted);font-size:13px}
+.sp-sort summary {color:var(--muted);font-size:13px;background:white}
+/* The listing area sits on ice blue so the white cards stand out; the hero and search keep their look. */
+.sp-catalogue {background:var(--ice)}
 .sp-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
-.sp-card {overflow:hidden;border:1px solid var(--line);border-radius:13px;background:#fff}
+.sp-card {overflow:hidden;border:1px solid #e1eaf0;border-radius:13px;background:#fff;box-shadow:0 1px 2px #0b35560a,0 6px 20px #0b35560f;transition:box-shadow .2s ease,translate .2s ease}
+.sp-card:hover {box-shadow:0 2px 4px #0b35560d,0 12px 30px #0b35561c}
+@media(prefers-reduced-motion:no-preference) {.sp-card:hover {translate:0 -2px}}
 .sp-card>a {display:flex;flex-direction:column;height:100%}
 .sp-card:focus-within {outline:3px solid var(--blue);outline-offset:3px}
 .sp-card-image {display:grid;place-items:center;position:relative;aspect-ratio:1.99;overflow:hidden;background:#e6eff3;color:var(--blue)}
@@ -181,6 +185,7 @@ body.spro-site.single-travel_listing {background:white}
 .spro-site .sp-trip-cta:hover {background:#005c91;color:white}
 .sp-trip-cta svg,.sp-trip-link svg {flex:none}
 .spro-site .sp-trip-reserve {display:flex;width:100%}
+.spro-site .sp-trip-bar-cta {display:none}
 .sp-trip-body {display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:clamp(28px,5vw,64px);margin-top:44px;align-items:start}
 .sp-trip-main {display:grid;gap:40px;min-width:0}
 .spro-site .sp-trip h2 {font-size:24px;line-height:1.2;letter-spacing:-.02em;font-weight:730;margin:0 0 14px;color:var(--ink)}
@@ -241,6 +246,10 @@ body.spro-site .sp-lightbox::backdrop {background:rgba(7,26,46,.88);opacity:1}
     .sp-trip-sticky .sp-trip-price b {font-size:16px}
     .sp-trip-sticky .sp-trip-price small {display:none}
     .sp-trip-sticky .sp-trip-cta {flex:none;padding:11px 16px;font-size:15px}
+    .spro-site .sp-trip-bar-cta {display:flex;width:100%}
+    /* Script-enabled pages slide the bar in only after the top card has scrolled away. */
+    .sp-trip-sticky[data-armed] {transform:translateY(calc(100% + 12px));visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+    .sp-trip-sticky[data-armed].is-visible {transform:none;visibility:visible;transition:transform .25s ease}
     .single-travel_listing .sp-footer-bottom {padding-bottom:96px}
     .single-travel_listing .ast-scroll-to-top-right {bottom:84px!important}
 }
@@ -316,3 +325,4 @@ body.spro-site .sp-lightbox::backdrop {background:rgba(7,26,46,.88);opacity:1}
 @media (prefers-reduced-motion: no-preference) {
     .sp-document {scroll-behavior:smooth}
 }
+@media(prefers-reduced-motion:reduce) {.sp-trip-sticky[data-armed],.sp-trip-sticky[data-armed].is-visible {transition:none}}

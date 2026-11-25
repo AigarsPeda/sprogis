@@ -17,7 +17,7 @@ The current visual work is local. On 25 November 2026 the user chose design opti
 - About this trip and What’s included on the left;
 - a sidebar with the poster as “Trip flyer” (opens in a lightbox), Key dates, the **Rezervēt / Reserve / Забронировать** button (the page’s only main action, at the user’s request) and an “Official tickets” or “Official website” link when it leads somewhere else;
 - More trips;
-- a bottom price bar on phones.
+- on phones, a Reserve button inside the top fact card. A bottom bar with the price and Reserve slides up only while neither Reserve button is on screen (`[data-sp-sticky]` in `catalogue.js`).
 
 The homepage hero, category tabs, search bar and cards are deliberately unchanged at the user’s request. The new footer (logo, short text, trip links, contact and company) is shared by every page. All of its text, the Reserve label and More trips are edited in **Travel Listings → Site and footer**. Footer trip links come from one WordPress menu per language (Appearance → Menus), or from categories with trips when no menu is set. Contact email, phone and company details are still empty on Local, so the “Ask SproTravel” button and those footer columns stay hidden until the user fills them in.
 
