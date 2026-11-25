@@ -59,7 +59,7 @@ Paths in this table are relative to `wp-content/plugins/travel-listings/`.
 - The **Featured image** cell accepts an embedded picture or a direct image URL. For Numbers, use a single-file document with an image fill in the cell. Exporting from Numbers to Excel can discard those fills. The server converts Numbers privately using a Python virtual environment outside the web root. The README gives setup commands.
 - Valid rows import even if others fail. When a category is missing, the report lets the editor select an existing category or create one if permitted. A private temporary workbook supports retrying those rows for 24 hours. Category choices apply to that upload.
 - Every trip is one row on Listings. At the user’s request, the new fields are columns next to the fields they belong with:
-  - **Trip page photo** and **Photo crop** after Featured image;
+  - **Card image**, **Trip page photo** and **Photo crop** after Featured image;
   - **Price includes** and **Key dates** after each language’s description;
   - **Reserve button link** after Travel website URL.
 
@@ -70,7 +70,13 @@ Paths in this table are relative to `wp-content/plugins/travel-listings/`.
 - The import report names the cell and line of each problem: a price that isn’t a number, languages with different line counts, a date that doesn’t exist, or a line without `|`.
 - Row 2 of the downloaded template is a filled-in example: the existing Tomorrowland trip in all three languages, with its poster URL, an Unsplash photo, included items and key dates, on a pale yellow background. Its Post name exists on Local and live, so uploading the template unchanged skips it. Uploading it unchanged to the live site would only add Tomorrowland’s included items and key dates, because live has none yet.
 - In Excel every new column shows a hint when selected. Columns with fixed values (dates, Post status, Photo crop, price badge, Reserve button link) also show an error window. Numbers ignores these checks but shows the header comments.
-- `scripts/update-listings-template.py` builds the template from the committed original, using `scripts/template-example.json` for the example row. It does nothing if the template is already updated. To change the layout, restore the template from git, edit the script and run it again.
+- Each trip has three pictures:
+  - **Featured image:** the poster. It appears as the Trip flyer lightbox, and on the homepage card when there is no card image.
+  - **Card image** (`_travel_card_image_id`): only the homepage card and More trips. Landscape, about 2 : 1.
+  - **Trip page photo** (`_travel_photo_id`): the trip page header.
+
+  On Local, each trip’s card image is its Unsplash trip page photo. That changes how the homepage cards look, but not their layout.
+- `scripts/update-listings-template.py` always builds the template from the original in commit `cfa5ea6`, using `scripts/template-example.json` for the example row, so rerunning it gives the same file. To change the layout, edit the script and run it again.
 - Preserve long price labels, including ranges and ticket qualifications. The listing wraps the full text. Convert literal newline escapes in translated descriptions and excerpts to real breaks on import. Existing offers are skipped on re-upload, so an importer fix alone cannot repair text already stored.
 
 ## Continuing work

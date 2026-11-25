@@ -14,7 +14,7 @@ final class Spro_Listing_Workbook {
     public static function fields() {
         $fields = ['post title', 'post name', 'categories', 'post status', 'featured image', 'travel price',
             'travel location', 'travel date from', 'travel date to', 'travel contact phone', 'travel contact email',
-            'travel website url', 'travel price on image', 'trip page photo', 'photo crop', 'reserve button link'];
+            'travel website url', 'travel price on image', 'card image', 'trip page photo', 'photo crop', 'reserve button link'];
         foreach (['lv', 'en', 'ru'] as $language) {
             foreach (['title', 'excerpt', 'description'] as $field) {
                 $fields[] = "travel $field $language";
@@ -284,9 +284,9 @@ final class Spro_Listing_Workbook {
         }
         $pictures = $this->pictures($sheet, $links);
         $rich = $this->rich_pictures();
-        // Pictures are accepted in the Featured image (poster) and Trip page photo columns.
+        // Pictures are accepted in the Featured image (poster), Card image and Trip page photo columns.
         $picture_cols = [];
-        foreach (['featured image', 'trip page photo'] as $field) {
+        foreach (['featured image', 'card image', 'trip page photo'] as $field) {
             $letters = array_search($field, $headers, true);
             if ($letters !== false) {
                 $picture_cols[$field] = [$letters, self::column_index($letters) - 1];
@@ -294,7 +294,7 @@ final class Spro_Listing_Workbook {
         }
         foreach ($pictures as $number => $anchors) {
             if ($number > $header_row && array_diff(array_keys($anchors), array_column($picture_cols, 1))) {
-                $this->warnings[] = "Row $number has a picture outside the Featured image and Trip page photo columns. It was ignored. Place the picture’s top-left corner inside the cell for its trip.";
+                $this->warnings[] = "Row $number has a picture outside the Featured image, Card image and Trip page photo columns. It was ignored. Place the picture’s top-left corner inside the cell for its trip.";
             }
         }
         $count = 0;
@@ -338,7 +338,7 @@ final class Spro_Listing_Workbook {
                 }
                 try {
                     $value = trim($this->value($cell));
-                    if (isset($addresses[$address]) && in_array($key, ['travel website url', 'featured image', 'trip page photo', 'reserve button link'], true)) {
+                    if (isset($addresses[$address]) && in_array($key, ['travel website url', 'featured image', 'card image', 'trip page photo', 'reserve button link'], true)) {
                         $value = $addresses[$address];
                     }
                     if (in_array($key, ['travel date from', 'travel date to'], true)) {
@@ -358,7 +358,7 @@ final class Spro_Listing_Workbook {
                 }
             }
             $count++;
-            yield $n => [$data, $found['featured image'][0] ?? '', $errors, $columns, $n, $found['trip page photo'][0] ?? ''];
+            yield $n => [$data, $found['featured image'][0] ?? '', $errors, $columns, $n, $found['trip page photo'][0] ?? '', $found['card image'][0] ?? ''];
         }
         if (!$count) {
             throw new RuntimeException('The listing table contains no records. Add a Post title on the first data row and upload again.');

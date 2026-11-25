@@ -170,7 +170,7 @@ $button = static function ($action, $class) {
                 <h2><?php echo esc_html(spro_site('more_title')); ?></h2>
                 <div class="sp-more-row">
                     <?php foreach ($more as $other):
-                        $other_photo = spro_trip_photo($other);
+                        $other_photo = spro_trip_card_image($other) ?: spro_trip_photo($other);
                         $other_price = spro_price_parts(spro_price($other))[0];
                         $other_from = get_post_meta($other, '_travel_date_from', true); ?>
                         <a class="sp-more-card" href="<?php echo esc_url(add_query_arg('lang', $lang, get_permalink($other))); ?>">

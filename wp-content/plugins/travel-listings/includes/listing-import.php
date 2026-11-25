@@ -54,7 +54,7 @@ function spro_import_row_key($data) {
     return sanitize_title($name === '' ? trim(sanitize_text_field($data['post title'] ?? '') . ' ' . ($data['travel date from'] ?? '')) : $name);
 }
 
-/** Store an embedded or linked picture as the featured image (poster) or the trip page photo. */
+/** Store an embedded or linked picture as the featured image (poster), the homepage card image or the trip page photo. */
 function spro_import_photo($book, $part, $url, $post_id, $slug, $field = 'featured image') {
     $label = ucfirst($field);
     require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -93,6 +93,8 @@ function spro_import_photo($book, $part, $url, $post_id, $slug, $field = 'featur
         }
         if ($field === 'trip page photo') {
             update_post_meta($post_id, '_travel_photo_id', $attachment);
+        } elseif ($field === 'card image') {
+            update_post_meta($post_id, '_travel_card_image_id', $attachment);
         } elseif (!set_post_thumbnail($post_id, $attachment)) {
             throw new RuntimeException('WordPress could not set the featured image.');
         }
@@ -113,6 +115,7 @@ function spro_import_row($book, $row, &$seen = [], $category_map = [], &$missing
     $columns = $row[3] ?? [];
     $number = $row[4] ?? 0;
     $photo = $row[5] ?? '';
+    $card = $row[6] ?? '';
     $issue = static function ($key, $message) use (&$errors, $columns, $number) {
         $field = ucfirst($key);
         $errors[] = (isset($columns[$key]) ? $columns[$key] . $number . " ($field)" : $field) . ': ' . $message;
@@ -216,7 +219,7 @@ function spro_import_row($book, $row, &$seen = [], $category_map = [], &$missing
             $issue($field, $message);
         }
     }
-    foreach (['featured image' => $image, 'trip page photo' => $photo] as $field => $part) {
+    foreach (['featured image' => $image, 'card image' => $card, 'trip page photo' => $photo] as $field => $part) {
         if (!$part && ($data[$field] ?? '') !== '' && !preg_match('~^https?://[^\s]+$~i', $data[$field])) {
             $issue($field, 'Paste a direct HTTP(S) image URL, insert a picture in this cell, or leave blank.');
         }
@@ -241,7 +244,7 @@ function spro_import_row($book, $row, &$seen = [], $category_map = [], &$missing
         if (is_wp_error($assigned)) {
             throw new RuntimeException($assigned->get_error_message());
         }
-        foreach (['featured image' => [$image, $key], 'trip page photo' => [$photo, $key . '-photo']] as $field => [$part, $file]) {
+        foreach (['featured image' => [$image, $key], 'card image' => [$card, $key . '-card'], 'trip page photo' => [$photo, $key . '-photo']] as $field => [$part, $file]) {
             if ($part === '' && ($data[$field] ?? '') === '') {
                 continue;
             }

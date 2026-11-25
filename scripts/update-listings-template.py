@@ -8,12 +8,16 @@ which the importer ignores. Row 2 is a filled-in example: the existing Tomorrowl
 upload skips because its Post name already exists. Every new column shows a hint when selected, and
 columns with fixed values show an error window for anything the importer would reject.
 
+The script always starts from the original template in commit cfa5ea6, so running it again gives the
+same file. To change the layout, edit this script and run it.
+
 Run with the Local Numbers environment, which has openpyxl:
     "/Users/aigarspeda/Local Sites/sprogis/app/spro-numbers/bin/python" scripts/update-listings-template.py
-To change the layout, restore the template from git first, then run this again.
 """
 import datetime
+import io
 import json
+import subprocess
 from copy import copy
 from pathlib import Path
 
@@ -27,13 +31,12 @@ ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "wp-content/plugins/travel-listings/assets/templates/sprotravel-listings-template.xlsx"
 EXAMPLE = json.loads((Path(__file__).with_name("template-example.json")).read_text())
 LAST_ROW = 1000
+ORIGINAL = "cfa5ea6"
 
-book = load_workbook(TEMPLATE)
+original = subprocess.run(["git", "show", f"{ORIGINAL}:{TEMPLATE.relative_to(ROOT).as_posix()}"], cwd=ROOT, check=True, capture_output=True).stdout
+book = load_workbook(io.BytesIO(original))
 listings = book["Listings"]
 guide = book["Instructions"]
-if any(str(cell.value or "").startswith("Price includes") for cell in listings[1]):
-    print("Template already has the trip page fields.")
-    raise SystemExit
 
 header_style = copy(listings["A1"]._style)
 header_height = listings.row_dimensions[1].height
@@ -46,6 +49,7 @@ for cell in listings[1]:
 LINE_PRICE = "One item per line: the item, then | and the price in euros. 170–220 is a range, 335 a fixed price, 335+ means from €335. Leave out the price to show “Included”. Line 1 in every language is the same item."
 LINE_DATES = "One date per line: the date, an optional end date and time, then | and what happens. Example: 13.02.2027 17:00 CET | Worldwide ticket sale. For several days: 16.07.2027 – 18.07.2027 | Festival weekend."
 NEW = {
+    "Card image (homepage card, landscape)": ("Optional. The picture on this trip’s homepage card and in More trips, about twice as wide as tall (for example 1200 × 600). Paste a direct image URL or put one picture in this cell. Blank shows the Featured image (poster).", 34),
     "Trip page photo (wide landscape)": ("Optional. A wide landscape photo across the top of the trip page. Paste a direct image URL or put one picture in this cell. The Featured image stays the poster, shown as the trip flyer.", 34),
     "Photo crop (top / center / bottom)": ("Optional. Which part of the trip page photo stays visible when it is cropped. Blank means center.", 20),
     "Reserve button link": ("Optional. Where the Reserve button on the trip page leads, for example a booking form. Blank uses the trip’s contact email or phone, then the site-wide contact details.", 34),
@@ -56,7 +60,7 @@ for code, name in LANGUAGE.items():
     NEW[f"Key dates {code} (one per line: date time | what happens)"] = (f"Optional, in {name}. Ticket sales, registration, the event and travel days, shown on the trip page in date order. {LINE_DATES}", 50)
 
 order = ["Post title", "Categories", "Travel date from", "Travel date to", "Travel price", "Travel location", "Post status",
-         "Featured image", "Trip page photo (wide landscape)", "Photo crop (top / center / bottom)"]
+         "Featured image", "Card image (homepage card, landscape)", "Trip page photo (wide landscape)", "Photo crop (top / center / bottom)"]
 for code in LANGUAGE:
     order += [f"Travel title {code}", f"Travel excerpt {code}", f"Travel description {code}",
               f"Price includes {code} (one per line: item | price)", f"Key dates {code} (one per line: date time | what happens)"]
@@ -72,6 +76,8 @@ for index, name in enumerate(order, start=1):
     letter = get_column_letter(index)
     letters[name.split(" (")[0]] = letter
     note, width = existing.get(name) or NEW[name]
+    if name == "Featured image":
+        note = "Optional. The trip’s poster. It is shown as the Trip flyer on the trip page, and on the homepage card when Card image is blank. Paste a direct image URL or put one picture in this cell."
     cell = listings.cell(1, index, name)
     cell._style = copy(header_style)
     comment = Comment(note, "SproTravel")
@@ -95,6 +101,8 @@ check("Post status", "Optional. Choose draft, pending, private or publish. Blank
       "Choose draft, pending, private or publish, or leave the cell blank.", type="list", formula1='"draft,pending,private,publish"')
 check("Travel price on image", "Optional. Choose 1 to display the price badge or 0 to hide it. Blank hides the badge.",
       "Choose 1 or 0, or leave the cell blank.", type="list", formula1='"0,1"')
+check("Featured image", "Optional. The poster: shown as the Trip flyer, and on the homepage card when Card image is blank. A direct image URL or one picture.")
+check("Card image", "Optional. The homepage card picture, about twice as wide as tall. A direct image URL or one picture. Blank shows the poster.")
 check("Trip page photo", "Optional. Paste a direct image URL (https://…) or put one picture in this cell. Use a wide landscape photo.")
 check("Photo crop", "Optional. Choose top, center or bottom. Blank means center.",
       "Choose top, center or bottom from the list, or leave the cell blank.", type="list", formula1='"top,center,bottom"')
@@ -114,7 +122,7 @@ values = {
     "Post title": EXAMPLE["post title"], "Categories": EXAMPLE["categories"],
     "Travel date from": datetime.date.fromisoformat(EXAMPLE["date_from"]), "Travel date to": datetime.date.fromisoformat(EXAMPLE["date_to"]),
     "Travel price": EXAMPLE["price"], "Travel location": EXAMPLE["location"], "Post status": EXAMPLE["status"],
-    "Featured image": EXAMPLE["featured image"], "Trip page photo": EXAMPLE["trip page photo"], "Photo crop": EXAMPLE["photo crop"],
+    "Featured image": EXAMPLE["featured image"], "Card image": EXAMPLE["card image"], "Trip page photo": EXAMPLE["trip page photo"], "Photo crop": EXAMPLE["photo crop"],
     "Travel contact email": EXAMPLE["contact_email"] or None, "Travel contact phone": EXAMPLE["contact_phone"] or None,
     "Travel website URL": EXAMPLE["website_url"] or None, "Reserve button link": None,
     "Travel price on image": int(EXAMPLE["price_on_image"] or 0), "Post name": EXAMPLE["post name"],
@@ -169,7 +177,10 @@ def field_row(name, what, sample=""):
     row += 1
 
 
-section_row("Trip page fields")
+section_row("Trip pictures and trip page fields")
+field_row("Three pictures", "Featured image is the poster, shown as the Trip flyer. Card image is the picture on the homepage card and in More trips; blank shows the poster. Trip page photo runs across the top of the trip page. Each takes a direct image URL or one picture in the cell.", "")
+field_row("Card image", "A landscape picture about twice as wide as it is tall, for example 1200 × 600. Keep text out of it: the card shows the title, dates and price below.",
+          "https://images.unsplash.com/photo-1565777645223-b05b83b8bc42?w=1200")
 field_row("Trip page photo", "A wide landscape photo across the top of the trip page. Paste a direct image URL or put one picture in the cell. The Featured image stays the poster, shown as the trip flyer.",
           "https://images.unsplash.com/photo-1565777645223-b05b83b8bc42?w=2400")
 field_row("Photo crop", "Which part of the photo stays visible when the header crops it. Blank means center.", "top, center or bottom")

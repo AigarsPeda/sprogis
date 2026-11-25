@@ -123,6 +123,12 @@ function spro_trip_photo($id) {
     return $photo && wp_attachment_is_image($photo) ? $photo : 0;
 }
 
+/** The homepage card image. Without one, the card keeps showing the featured image (poster). */
+function spro_trip_card_image($id) {
+    $image = (int) get_post_meta($id, '_travel_card_image_id', true);
+    return $image && wp_attachment_is_image($image) ? $image : 0;
+}
+
 /* ---------- Formatting in the visitor's language ---------- */
 
 function spro_format_date($ymd) {
@@ -256,6 +262,17 @@ add_action('admin_enqueue_scripts', static function ($hook) {
 function spro_trip_details_box($post) {
     wp_nonce_field('spro_trip_details', 'spro_trip_details_nonce');
     $photo = spro_trip_photo($post->ID);
+    $card = spro_trip_card_image($post->ID);
+    $picker = static function ($name, $image, $noun) {
+        ?>
+        <div class="spro-photo" data-spro-photo data-noun="<?php echo esc_attr($noun); ?>">
+            <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($image ?: ''); ?>">
+            <div data-spro-photo-preview><?php if ($image) echo wp_get_attachment_image($image, 'medium'); ?></div>
+            <button type="button" class="button" data-spro-photo-choose><?php echo esc_html(($image ? 'Replace ' : 'Choose ') . $noun); ?></button>
+            <button type="button" class="button-link button-link-delete" data-spro-photo-remove <?php if (!$image) echo 'hidden'; ?>>Remove <?php echo esc_html($noun); ?></button>
+        </div>
+        <?php
+    };
     $included = spro_trip_included($post->ID);
     $dates = spro_trip_key_dates($post->ID);
     $related = array_map('intval', (array) get_post_meta($post->ID, '_travel_related', true));
@@ -303,14 +320,14 @@ function spro_trip_details_box($post) {
     };
     ?>
     <div class="spro-trip-details">
+        <p class="description">Each trip can have three pictures. The <strong>Featured image</strong> (in the sidebar) is the poster, shown as the trip flyer. The two below are optional.</p>
+        <h3>Homepage card image</h3>
+        <p class="description">Shown on this trip’s card on the homepage and in More trips. Use a landscape picture, about twice as wide as it is tall (for example 1200 × 600). Without one, the card shows the featured image.</p>
+        <?php $picker('spro_card_image_id', $card, 'card image'); ?>
+
         <h3>Trip page photo</h3>
-        <p class="description">A wide landscape photo shown across the top of the trip page. The featured image (poster) stays available as the trip flyer.</p>
-        <div class="spro-photo" data-spro-photo>
-            <input type="hidden" name="spro_photo_id" value="<?php echo esc_attr($photo ?: ''); ?>">
-            <div data-spro-photo-preview><?php if ($photo) echo wp_get_attachment_image($photo, 'medium'); ?></div>
-            <button type="button" class="button" data-spro-photo-choose><?php echo $photo ? 'Replace photo' : 'Choose photo'; ?></button>
-            <button type="button" class="button-link button-link-delete" data-spro-photo-remove <?php if (!$photo) echo 'hidden'; ?>>Remove photo</button>
-        </div>
+        <p class="description">A wide landscape photo shown across the top of the trip page.</p>
+        <?php $picker('spro_photo_id', $photo, 'photo'); ?>
         <p><label for="spro_photo_position">Keep this part of the photo visible:</label>
             <select id="spro_photo_position" name="spro_photo_position">
                 <?php foreach (spro_photo_positions() as $key => [$label]): ?>
@@ -392,11 +409,13 @@ add_action('save_post_travel_listing', static function ($post_id) {
     if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || wp_is_post_revision($post_id) || !current_user_can('edit_post', $post_id)) {
         return;
     }
-    $photo = absint($_POST['spro_photo_id'] ?? 0);
-    if ($photo && wp_attachment_is_image($photo)) {
-        update_post_meta($post_id, '_travel_photo_id', $photo);
-    } else {
-        delete_post_meta($post_id, '_travel_photo_id');
+    foreach (['spro_photo_id' => '_travel_photo_id', 'spro_card_image_id' => '_travel_card_image_id'] as $field => $meta) {
+        $image = absint($_POST[$field] ?? 0);
+        if ($image && wp_attachment_is_image($image)) {
+            update_post_meta($post_id, $meta, $image);
+        } else {
+            delete_post_meta($post_id, $meta);
+        }
     }
     $reserve = esc_url_raw(trim(wp_unslash($_POST['spro_reserve_url'] ?? '')), ['http', 'https']);
     if ($reserve) {

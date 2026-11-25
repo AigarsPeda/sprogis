@@ -46,37 +46,39 @@
         });
     }
 
-    var photo = document.querySelector('[data-spro-photo]');
-    if (!photo || !window.wp || !wp.media) {
+    if (!window.wp || !wp.media) {
         return;
     }
-    var input = photo.querySelector('input');
-    var preview = photo.querySelector('[data-spro-photo-preview]');
-    var choose = photo.querySelector('[data-spro-photo-choose]');
-    var remove = photo.querySelector('[data-spro-photo-remove]');
-    var frame;
-    choose.addEventListener('click', function () {
-        if (!frame) {
-            frame = wp.media({ title: 'Trip page photo', button: { text: 'Use this photo' }, library: { type: 'image' }, multiple: false });
-            frame.on('select', function () {
-                var picked = frame.state().get('selection').first().toJSON();
-                var size = picked.sizes && (picked.sizes.medium || picked.sizes.full);
-                input.value = picked.id;
-                preview.innerHTML = '';
-                var img = document.createElement('img');
-                img.src = size ? size.url : picked.url;
-                img.alt = '';
-                preview.appendChild(img);
-                choose.textContent = 'Replace photo';
-                remove.hidden = false;
-            });
-        }
-        frame.open();
-    });
-    remove.addEventListener('click', function () {
-        input.value = '';
-        preview.innerHTML = '';
-        choose.textContent = 'Choose photo';
-        remove.hidden = true;
+    document.querySelectorAll('[data-spro-photo]').forEach(function (photo) {
+        var noun = photo.getAttribute('data-noun') || 'photo';
+        var input = photo.querySelector('input');
+        var preview = photo.querySelector('[data-spro-photo-preview]');
+        var choose = photo.querySelector('[data-spro-photo-choose]');
+        var remove = photo.querySelector('[data-spro-photo-remove]');
+        var frame;
+        choose.addEventListener('click', function () {
+            if (!frame) {
+                frame = wp.media({ title: 'Choose ' + noun, button: { text: 'Use this ' + noun }, library: { type: 'image' }, multiple: false });
+                frame.on('select', function () {
+                    var picked = frame.state().get('selection').first().toJSON();
+                    var size = picked.sizes && (picked.sizes.medium || picked.sizes.full);
+                    input.value = picked.id;
+                    preview.innerHTML = '';
+                    var img = document.createElement('img');
+                    img.src = size ? size.url : picked.url;
+                    img.alt = '';
+                    preview.appendChild(img);
+                    choose.textContent = 'Replace ' + noun;
+                    remove.hidden = false;
+                });
+            }
+            frame.open();
+        });
+        remove.addEventListener('click', function () {
+            input.value = '';
+            preview.innerHTML = '';
+            choose.textContent = 'Choose ' + noun;
+            remove.hidden = true;
+        });
     });
 })();

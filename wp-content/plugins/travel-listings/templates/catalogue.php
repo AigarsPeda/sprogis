@@ -100,7 +100,7 @@ $label_reset = spro_text('Notīrīt filtrus','Clear filters','Сбросить �
         $date = get_post_meta($id,'_travel_date_from',true);
         ?>
         <article class="sp-card"><a href="<?php echo esc_url(add_query_arg('lang',$this->get_current_language(),get_permalink($id))); ?>">
-            <div class="sp-card-image"><?php if (has_post_thumbnail($id)) echo get_the_post_thumbnail($id,'medium_large',['alt'=>'','sizes'=>'(max-width: 600px) 94vw, (max-width: 900px) 45vw, 380px']); else echo spro_icon(spro_term_icon($cat),44); ?>
+            <div class="sp-card-image"><?php $card_sizes = ['alt'=>'','sizes'=>'(max-width: 600px) 94vw, (max-width: 900px) 45vw, 380px']; if ($card_image = spro_trip_card_image($id)) echo wp_get_attachment_image($card_image,'medium_large',false,$card_sizes); elseif (has_post_thumbnail($id)) echo get_the_post_thumbnail($id,'medium_large',$card_sizes); else echo spro_icon(spro_term_icon($cat),44); ?>
             <?php if ($cat): ?><span class="sp-cat"><?php echo spro_icon(spro_term_icon($cat),14); ?><?php echo esc_html($cat->name); ?></span><?php endif; ?></div>
             <div class="sp-card-body"><?php if ($place): ?><span class="sp-place"><?php echo spro_icon('pin',14); ?><?php echo esc_html($place); ?></span><?php endif; ?><h3><?php echo esc_html($title); ?></h3>
                 <?php if ($date): ?><span class="sp-card-date"><?php echo spro_icon('calendar',14); ?><?php echo esc_html(mysql2date('d.m.Y',$date)); ?></span><?php endif; ?>

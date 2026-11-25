@@ -86,7 +86,8 @@ def main():
         sheet = empty["Listings"]
         names = [c.value for c in sheet[1]]
         assert names.index("Price includes EN (one per line: item | price)") == names.index("Travel description EN") + 1
-        assert names.index("Trip page photo (wide landscape)") == names.index("Featured image") + 1
+        assert names.index("Card image (homepage card, landscape)") == names.index("Featured image") + 1
+        assert names.index("Trip page photo (wide landscape)") == names.index("Featured image") + 2
         assert all(v.showInputMessage and v.prompt for v in sheet.data_validations.dataValidation)
         example_key = sheet.cell(2, names.index("Post name") + 1).value
         assert example_key == "tomorrowland-belgium-2027-weekend-1"
@@ -168,10 +169,15 @@ def main():
             PILImage.new("RGB", (40, 20), "blue").save(stream, "PNG")
             stream.seek(0)
             sheet.add_image(Image(stream), "C2")
+            card = io.BytesIO()
+            PILImage.new("RGB", (60, 30), "orange").save(card, "PNG")
+            card.seek(0)
+            sheet.add_image(Image(card), "J2")
 
         detail_headers = ["Post title", "Post name", "Trip page photo (wide landscape)", "Photo crop (top / center / bottom)", "Reserve button link",
                           "Price includes LV (one per line: item | price)", "Price includes EN (one per line: item | price)",
-                          "Key dates LV (one per line: date time | what happens)", "Key dates EN (one per line: date time | what happens)"]
+                          "Key dates LV (one per line: date time | what happens)", "Key dates EN (one per line: date time | what happens)",
+                          "Card image (homepage card, landscape)"]
         detail_row = [trip, trip, None, "Top", "https://example.org/book",
                       "Lidojums | 170–220,50\nBrokastis", "Flight | €170 - 220.50\nBreakfast\n",
                       "16.07.2027 – 18.07.2027 | Festivāls\n2.12.2026 15:00 cet | Reģistrācija",
@@ -180,14 +186,15 @@ def main():
         stored = json.loads(wp("eval", f"""
             $id=spro_import_existing('{trip}','_spro_import_key');
             echo wp_json_encode([spro_trip_included($id), spro_trip_key_dates($id), (bool)spro_trip_photo($id),
-                get_post_meta($id,'_travel_photo_position',true), get_post_meta($id,'_travel_reserve_url',true)]);
+                get_post_meta($id,'_travel_photo_position',true), get_post_meta($id,'_travel_reserve_url',true),
+                spro_trip_card_image($id) && spro_trip_card_image($id) !== spro_trip_photo($id)]);
         """))
         assert [(r["item"]["lv"], r["item"]["en"], r["from"], r["to"]) for r in stored[0]] == [
             ("Lidojums", "Flight", 170, 220.5), ("Brokastis", "Breakfast", None, None)], stored[0]
         assert [(r["date"], r["to"], r["time"], r["label"]["lv"], r["label"]["en"]) for r in stored[1]] == [
             ("2026-12-02", "", "15:00 CET", "Reģistrācija", "Pre-registration opens"), ("2027-02-13", "", "17:00", "", "Worldwide sale"),
             ("2027-07-16", "2027-07-18", "", "Festivāls", "Festival weekend")], stored[1]
-        assert stored[2:] == [True, "top", "https://example.org/book"]
+        assert stored[2:] == [True, "top", "https://example.org/book", True]
         # A repeat upload never overwrites details already stored.
         changed = [*detail_row[:5], "Cits | 1", "Other | 1", "", ""]
         upload("details-repeat", make_book([detail_headers, changed]), (0, 1, 0))

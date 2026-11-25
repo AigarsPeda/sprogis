@@ -49,7 +49,7 @@ def listing_table(document):
 def write_cell(sheet, cell, field):
     row, col, value = cell.row, cell.col, cell.value
     address = xl_rowcol_to_cell(row, col)
-    if field in ("featured image", "trip page photo"):
+    if field in ("featured image", "card image", "trip page photo"):
         picture = cell.style.bg_image
         if picture:
             try:
@@ -57,7 +57,7 @@ def write_cell(sheet, cell, field):
             except (ValueError, TypeError, OSError, UndefinedImageSize, UnsupportedImageFormat) as exc:
                 raise WorkbookError(f"{address}: use a JPEG or PNG cell image fill, or a direct image URL.") from exc
     links = getattr(cell, "hyperlinks", None)
-    if links and field in ("travel website url", "featured image", "trip page photo", "reserve button link"):
+    if links and field in ("travel website url", "featured image", "card image", "trip page photo", "reserve button link"):
         value = links[0][1]
     if isinstance(cell, ErrorCell) or (cell.is_formula and value is None):
         # Feed the cell error into the same row-level reporting used by Excel.
