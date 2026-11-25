@@ -237,7 +237,10 @@ function spro_import_page() {
                 <p><input required id="spro-workbook" name="workbook" type="file" accept=".xlsx,.numbers" data-max-bytes="<?php echo (int) min(wp_max_upload_size(), 32 * MB_IN_BYTES); ?>" aria-describedby="spro-import-help"></p>
                 <p id="spro-import-help" class="description">Choose one .xlsx or .numbers file up to <?php echo esc_html(size_format(min(wp_max_upload_size(), 32 * MB_IN_BYTES))); ?>. In Numbers, put photos inside the Featured image cells or paste direct image URLs. Only Post title is required. Leave Post status blank for a draft. Keep Post name stable to avoid duplicates.</p>
                 <p aria-live="polite" id="spro-import-status"></p>
-                <?php submit_button('Import workbook', 'primary', 'spro-import-submit', false); ?>
+                <div id="spro-import-actions" hidden>
+                    <?php submit_button('Import workbook', 'primary', 'spro-import-submit', false); ?>
+                </div>
+                <noscript><?php submit_button('Import workbook', 'primary', 'spro-import-manual', false); ?></noscript>
             </div>
         </form>
         <h2>Import history</h2>

@@ -157,7 +157,7 @@ git diff -- wp-content/plugins/travel-listings
 
 ### Importing a listings workbook
 
-In WordPress admin, open **Travel Listings → Excel and Numbers import**. Drop one `.xlsx` or single-file `.numbers` workbook onto the upload area or choose it with the file picker. The import starts immediately. Editors and administrators with media upload access can use this page. The result and row-level errors stay in **Import history**.
+In WordPress admin, open **Travel Listings → Excel and Numbers import**. Drop one `.xlsx` or single-file `.numbers` workbook onto the upload area or choose it with the file picker. Select **Import workbook** to start. The page controls are disabled while WordPress processes the file. Editors and administrators with media upload access can use this page. The result and row-level errors stay in **Import history**.
 
 Use **Download Excel template** on the import page. Fill in **Listings** from row 2. The **Instructions** tab gives field examples and explains how to correct an upload. Only Post title is required. The importer reads the title, categories (existing names or slugs, comma-separated), travel dates, price, location, status, LV/EN/RU listing text, contact details, display setting and featured image. Dates can be real Excel dates, YYYY-MM-DD or DD.MM.YYYY. An empty status defaults to draft.
 
