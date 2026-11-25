@@ -73,6 +73,23 @@ add_action('wp', static function () {
         }
     }
     $canonical = spro_search_language_url($base, in_array($lang, $languages, true) ? $lang : 'lv');
+    if ($is_listing) {
+        add_action('wp_head', static function () use ($id, $title, $description, $canonical) {
+            echo '<meta property="og:type" content="article">' . "\n";
+            echo '<meta property="og:site_name" content="SproTravel">' . "\n";
+            printf('<meta property="og:title" content="%s">' . "\n", esc_attr(wp_strip_all_tags($title)));
+            printf('<meta property="og:description" content="%s">' . "\n", esc_attr(wp_strip_all_tags($description)));
+            printf('<meta property="og:url" content="%s">' . "\n", esc_url($canonical));
+
+            $image_id = spro_trip_photo($id) ?: get_post_thumbnail_id($id);
+            $image = $image_id ? wp_get_attachment_image_src($image_id, 'large') : false;
+            if ($image) {
+                printf('<meta property="og:image" content="%s">' . "\n", esc_url($image[0]));
+                printf('<meta property="og:image:width" content="%d">' . "\n", $image[1]);
+                printf('<meta property="og:image:height" content="%d">' . "\n", $image[2]);
+            }
+        }, 2);
+    }
     remove_action('wp_head', 'rel_canonical');
     add_filter('pre_get_document_title', static function () use ($title) {
         return esc_html(wp_strip_all_tags($title) . ' | SproTravel');
