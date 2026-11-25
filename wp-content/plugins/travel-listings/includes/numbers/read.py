@@ -1,6 +1,7 @@
 """Adapt a single-file Numbers listing table for the shared WordPress workbook reader."""
 import datetime
 import io
+import re
 from pathlib import Path
 import resource
 import signal
@@ -20,7 +21,9 @@ class WorkbookError(ValueError):
 
 
 def header(value):
-    return " ".join(str(value or "").replace("_", " ").replace("\ufeff", "").lower().split())
+    text = " ".join(str(value or "").replace("_", " ").replace("\ufeff", "").lower().split())
+    # A hint in brackets after the name is for people only, as in the PHP reader.
+    return re.sub(r"\s*\([^()]*\)$", "", text).strip()
 
 
 def listing_table(document):
@@ -46,7 +49,7 @@ def listing_table(document):
 def write_cell(sheet, cell, field):
     row, col, value = cell.row, cell.col, cell.value
     address = xl_rowcol_to_cell(row, col)
-    if field == "featured image":
+    if field in ("featured image", "trip page photo"):
         picture = cell.style.bg_image
         if picture:
             try:
@@ -54,7 +57,7 @@ def write_cell(sheet, cell, field):
             except (ValueError, TypeError, OSError, UndefinedImageSize, UnsupportedImageFormat) as exc:
                 raise WorkbookError(f"{address}: use a JPEG or PNG cell image fill, or a direct image URL.") from exc
     links = getattr(cell, "hyperlinks", None)
-    if links and field in ("travel website url", "featured image"):
+    if links and field in ("travel website url", "featured image", "trip page photo", "reserve button link"):
         value = links[0][1]
     if isinstance(cell, ErrorCell) or (cell.is_formula and value is None):
         # Feed the cell error into the same row-level reporting used by Excel.
@@ -83,7 +86,8 @@ def convert(source, output):
     with tempfile.TemporaryDirectory() as folder:
         path = Path(folder, "upload.numbers")
         path.symlink_to(Path(source).resolve())
-        table, headers = listing_table(Document(path))
+        document = Document(path)
+        table, headers = listing_table(document)
         if table.merge_ranges:
             raise WorkbookError(f"Unmerge {table.merge_ranges[0]} in the Numbers listing table and upload again.")
         with Workbook(output, {"in_memory": True}) as book:

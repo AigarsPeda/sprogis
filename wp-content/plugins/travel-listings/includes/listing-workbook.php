@@ -7,16 +7,20 @@ final class Spro_Listing_Workbook {
     private $strings = [];
     public $date1904 = false;
     public $warnings = [];
+    /** Existing trips that received included items or key dates from this upload. */
+    public $details_added = 0;
     public $sheet_name = '';
 
     public static function fields() {
         $fields = ['post title', 'post name', 'categories', 'post status', 'featured image', 'travel price',
             'travel location', 'travel date from', 'travel date to', 'travel contact phone', 'travel contact email',
-            'travel website url', 'travel price on image'];
+            'travel website url', 'travel price on image', 'trip page photo', 'photo crop', 'reserve button link'];
         foreach (['lv', 'en', 'ru'] as $language) {
             foreach (['title', 'excerpt', 'description'] as $field) {
                 $fields[] = "travel $field $language";
             }
+            $fields[] = "price includes $language";
+            $fields[] = "key dates $language";
         }
         return $fields;
     }
@@ -103,7 +107,11 @@ final class Spro_Listing_Workbook {
     }
 
     private static function text($element) {
-        return implode('', array_map('strval', $element->xpath('./*[local-name()="t"] | ./*[local-name()="r"]/*[local-name()="t"]')));
+        // An empty inline-string cell can have no text element at all.
+        if ($element === null) {
+            return '';
+        }
+        return implode('', array_map('strval', $element->xpath('./*[local-name()="t"] | ./*[local-name()="r"]/*[local-name()="t"]') ?: []));
     }
 
     private function value($cell) {
@@ -180,9 +188,19 @@ final class Spro_Listing_Workbook {
         return $out;
     }
 
+    private static function column_index($letters) {
+        $index = 0;
+        foreach (str_split((string) $letters) as $letter) {
+            $index = $index * 26 + ord($letter) - 64;
+        }
+        return $index;
+    }
+
     private static function header($text) {
         $text = str_replace(["\xEF\xBB\xBF", '_'], ['', ' '], $text);
-        return strtolower(trim(preg_replace('/[\s\p{Z}]+/u', ' ', $text)));
+        $text = strtolower(trim(preg_replace('/[\s\p{Z}]+/u', ' ', $text)));
+        // A hint in brackets after the name, such as "Key dates EN (one per line)", is for people only.
+        return trim(preg_replace('/\s*\([^()]*\)$/u', '', $text));
     }
 
     private function listing_sheet($book, $links) {
@@ -266,14 +284,17 @@ final class Spro_Listing_Workbook {
         }
         $pictures = $this->pictures($sheet, $links);
         $rich = $this->rich_pictures();
-        $image_col = array_search('featured image', $headers, true);
-        $image_index = 0;
-        foreach (str_split((string) $image_col) as $letter) {
-            $image_index = $image_index * 26 + ord($letter) - 64;
+        // Pictures are accepted in the Featured image (poster) and Trip page photo columns.
+        $picture_cols = [];
+        foreach (['featured image', 'trip page photo'] as $field) {
+            $letters = array_search($field, $headers, true);
+            if ($letters !== false) {
+                $picture_cols[$field] = [$letters, self::column_index($letters) - 1];
+            }
         }
         foreach ($pictures as $number => $anchors) {
-            if ($number > $header_row && array_diff(array_keys($anchors), [$image_index - 1])) {
-                $this->warnings[] = "Row $number has a picture outside the Featured image column. It was ignored. Place the picture’s top-left corner inside the Featured image cell to import it.";
+            if ($number > $header_row && array_diff(array_keys($anchors), array_column($picture_cols, 1))) {
+                $this->warnings[] = "Row $number has a picture outside the Featured image and Trip page photo columns. It was ignored. Place the picture’s top-left corner inside the cell for its trip.";
             }
         }
         $count = 0;
@@ -284,7 +305,10 @@ final class Spro_Listing_Workbook {
             }
             $data = [];
             $errors = [];
-            $images = $pictures[$n][$image_index - 1] ?? [];
+            $found = [];
+            foreach ($picture_cols as $field => [, $index]) {
+                $found[$field] = $pictures[$n][$index] ?? [];
+            }
             foreach ($row->c as $cell) {
                 $column = preg_replace('/[0-9]+$/', '', (string) $cell->attributes()['r']);
                 $key = $headers[$column] ?? '';
@@ -298,8 +322,8 @@ final class Spro_Listing_Workbook {
                 if (!isset($columns[$key])) {
                     continue;
                 }
-                if ($key === 'featured image' && (int) $cell->attributes()['vm'] && !empty($rich[(int) $cell->attributes()['vm']])) {
-                    $images[] = $rich[(int) $cell->attributes()['vm']];
+                if (isset($picture_cols[$key]) && (int) $cell->attributes()['vm'] && !empty($rich[(int) $cell->attributes()['vm']])) {
+                    $found[$key][] = $rich[(int) $cell->attributes()['vm']];
                     continue;
                 }
                 $type = (string) $cell->attributes()['t'];
@@ -314,7 +338,7 @@ final class Spro_Listing_Workbook {
                 }
                 try {
                     $value = trim($this->value($cell));
-                    if (isset($addresses[$address]) && in_array($key, ['travel website url', 'featured image'], true)) {
+                    if (isset($addresses[$address]) && in_array($key, ['travel website url', 'featured image', 'trip page photo', 'reserve button link'], true)) {
                         $value = $addresses[$address];
                     }
                     if (in_array($key, ['travel date from', 'travel date to'], true)) {
@@ -325,14 +349,16 @@ final class Spro_Listing_Workbook {
                     $errors[] = "$address ($field): " . $e->getMessage();
                 }
             }
-            if (!$images && !$errors && !array_filter($data, 'strlen')) {
+            if (!array_filter($found) && !$errors && !array_filter($data, 'strlen')) {
                 continue;
             }
-            if (count($images) > 1 || in_array('', $images, true)) {
-                $errors[] = "{$image_col}{$n} (Featured image): use one embedded picture or paste one direct image URL.";
+            foreach ($found as $field => $images) {
+                if (count($images) > 1 || in_array('', $images, true)) {
+                    $errors[] = "{$picture_cols[$field][0]}{$n} (" . ucfirst($field) . "): use one embedded picture or paste one direct image URL.";
+                }
             }
             $count++;
-            yield $n => [$data, $images[0] ?? '', $errors, $columns, $n];
+            yield $n => [$data, $found['featured image'][0] ?? '', $errors, $columns, $n, $found['trip page photo'][0] ?? ''];
         }
         if (!$count) {
             throw new RuntimeException('The listing table contains no records. Add a Post title on the first data row and upload again.');

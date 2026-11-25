@@ -16,6 +16,8 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/includes/category-filters.php';
 require_once __DIR__ . '/includes/catalogue.php';
 require_once __DIR__ . '/includes/search-metadata.php';
+require_once __DIR__ . '/includes/trip-details.php';
+require_once __DIR__ . '/includes/site-settings.php';
 require_once __DIR__ . '/includes/listing-import.php';
 require_once __DIR__ . '/includes/import-admin.php';
 

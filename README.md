@@ -27,7 +27,7 @@ Main plugin entry point:
 Templates:
 
 - `wp-content/plugins/travel-listings/templates/archive-travel_listing.php`
-- `wp-content/plugins/travel-listings/templates/single-travel_listing.php`
+- `wp-content/plugins/travel-listings/templates/offer-detail.php` (individual offer inside the shared `travel-site.php` layout)
 
 Assets:
 
@@ -114,6 +114,8 @@ If not using symlink, sync manually:
 cp -R wp-content/plugins/travel-listings/. "../../Local Sites/sprogis/app/public/wp-content/plugins/travel-listings/"
 ```
 
+On individual offers, a sticky summary keeps the location, dates, price and primary link in view while visitors scroll. On phones it sits above the article. Set **Website URL** to the final offer or booking page. If the URL is empty, the page also recognizes an official link labelled at the end of an imported plain-text description. Email and phone remain available for direct enquiries.
+
 ## Cache and refresh notes
 
 The plugin now versions enqueued assets via file modification time (`filemtime`), so CSS/JS changes should invalidate browser cache automatically.
@@ -162,6 +164,8 @@ In WordPress admin, open **Travel Listings → Excel and Numbers import**. Drop 
 Use **Download Excel template** on the import page. Fill in **Listings** from row 2. The **Instructions** tab gives field examples and explains how to correct an upload. Only Post title is required. The importer reads the title, categories (existing names or slugs, comma-separated), travel dates, price, location, status, LV/EN/RU listing text, contact details, display setting and featured image. Dates can be real Excel dates, YYYY-MM-DD or DD.MM.YYYY. An empty status defaults to draft.
 
 Reordered headers and leading blank rows are supported. Keep the listing table on one visible sheet. Other visible sheets without listing headers and hidden sheets are ignored. Within the listing table, hidden and filtered data rows are imported too. Ambiguous headers, multiple listing tables and merged table cells produce a workbook error before any rows are imported. Unknown extra columns generate warnings. Invalid data rows show their cell references and correction instructions. Other valid rows are imported. For a missing category, open the import report, choose an existing category or create the workbook category, and select **Apply categories and retry rows**. WordPress retains the pending workbook in its private temporary directory for up to 24 hours. The choices apply to that import.
+
+After changing the template fields, run `scripts/update-listings-template.py` with the same Python environment. It adds the Trip page photo, Photo crop, Price includes, Key dates and Reserve button link columns, cell hints and error checks, and the example row from `scripts/template-example.json`. It does nothing if the template already has them. To change the layout, restore the template from git first.
 
 To run the upload regression suite against the running local site, use `python3 scripts/test-excel-import.py` with openpyxl, Pillow and numbers-parser installed. It exercises the real admin endpoint using temporary test listings and removes its own data and login session afterward.
 

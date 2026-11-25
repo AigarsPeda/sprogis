@@ -81,13 +81,28 @@ def main():
         empty = load_workbook(io.BytesIO(template))
         assert empty.sheetnames == ["Listings", "Instructions"]
         guide = " ".join(str(c.value) for row in empty["Instructions"] for c in row if c.value)
-        assert all(text in guide for text in ["Post title", "Post name", "Featured image", "correct", "YYYY-MM-DD"])
-        assert len(empty["Listings"].data_validations.dataValidation) == 2
-        upload("downloaded-blank-template", template, (0, 0, 1), "no records")
-        empty["Listings"]["A2"] = title("template")
+        assert all(text in guide for text in ["Post title", "Post name", "Featured image", "correct", "YYYY-MM-DD",
+                                              "Trip page photo", "Price includes LV / EN / RU", "Key dates LV / EN / RU", "Row 2 on Listings"])
+        sheet = empty["Listings"]
+        names = [c.value for c in sheet[1]]
+        assert names.index("Price includes EN (one per line: item | price)") == names.index("Travel description EN") + 1
+        assert names.index("Trip page photo (wide landscape)") == names.index("Featured image") + 1
+        assert all(v.showInputMessage and v.prompt for v in sheet.data_validations.dataValidation)
+        example_key = sheet.cell(2, names.index("Post name") + 1).value
+        assert example_key == "tomorrowland-belgium-2027-weekend-1"
+        # The example row is an existing trip, so uploading the template unchanged creates nothing.
+        upload("downloaded-template-with-example", template, (0, 1, 0))
+        for cell in sheet[2]:
+            cell.value = None
+        sheet["A2"] = title("template")
         stream = io.BytesIO()
         empty.save(stream)
         upload("downloaded-filled-template", stream.getvalue(), (1, 0, 0))
+        for cell in sheet[2]:
+            cell.value = None
+        stream = io.BytesIO()
+        empty.save(stream)
+        upload("downloaded-blank-template", stream.getvalue(), (0, 0, 1), "no records")
         headers = ["Post title", "Post name", "Travel date from", "Travel date to", "Post status",
                    "Categories", "Travel contact email", "Travel website URL", "Travel price on image", "Featured image"]
         mixed = [headers, [title("minimal")], [None, title("broken"), "31.02.2027", "12/03/27", "live",
@@ -129,12 +144,62 @@ def main():
         upload("excel-1900", make_book([headers, [title("excel-bug"), None, 60]]), (0, 0, 1), "C2", "calendar")
         upload("excel-1904", make_book([headers, [title("mac"), title("mac"), datetime.datetime(2028, 2, 29, 12)]],
                lambda b, s: setattr(b, "epoch", CALENDAR_MAC_1904)), (1, 0, 0))
+        prose = "Pirmā.\\n\\nOtra.\\r\\nTrešā.\nNoslēgums."
+        formatted = "Pirmā.\n\nOtra.\nTrešā.\nNoslēgums."
+        upload("line-breaks", make_book([["Post title", "Travel description LV", "Travel excerpt RU"],
+               [title("lines"), prose, prose]]), (1, 0, 0))
+        fields = wp("eval", f"""
+            $id=spro_import_existing('{title("lines")}','_spro_import_key');
+            echo wp_json_encode([get_post_meta($id,'_travel_description_lv',true),get_post_meta($id,'_travel_excerpt_ru',true)]);
+        """)
+        assert json.loads(fields) == [formatted, formatted]
         long_price = "≈640–915 €/personai (aplēse; biļete €85 sākumcena)"
         upload("long-price", make_book([["Post title", "Travel price"], [title("price"), long_price]]), (1, 0, 0))
         assert wp("eval", f"""
             $id=spro_import_existing('{title("price")}','_spro_import_key');
             echo spro_price($id);
         """) == long_price
+
+        # Trip page details: photo, crop and reserve link columns, and one-per-line Price includes and Key dates cells.
+        trip = title("details")
+
+        def photo(book, sheet):
+            stream = io.BytesIO()
+            PILImage.new("RGB", (40, 20), "blue").save(stream, "PNG")
+            stream.seek(0)
+            sheet.add_image(Image(stream), "C2")
+
+        detail_headers = ["Post title", "Post name", "Trip page photo (wide landscape)", "Photo crop (top / center / bottom)", "Reserve button link",
+                          "Price includes LV (one per line: item | price)", "Price includes EN (one per line: item | price)",
+                          "Key dates LV (one per line: date time | what happens)", "Key dates EN (one per line: date time | what happens)"]
+        detail_row = [trip, trip, None, "Top", "https://example.org/book",
+                      "Lidojums | 170–220,50\nBrokastis", "Flight | €170 - 220.50\nBreakfast\n",
+                      "16.07.2027 – 18.07.2027 | Festivāls\n2.12.2026 15:00 cet | Reģistrācija",
+                      "2026-12-02 15:00 CET | Pre-registration opens\n13.02.2027 17:00 | Worldwide sale\n16.07.2027-18.07.2027 | Festival weekend"]
+        upload("details", make_book([detail_headers, detail_row], photo), (1, 0, 0))
+        stored = json.loads(wp("eval", f"""
+            $id=spro_import_existing('{trip}','_spro_import_key');
+            echo wp_json_encode([spro_trip_included($id), spro_trip_key_dates($id), (bool)spro_trip_photo($id),
+                get_post_meta($id,'_travel_photo_position',true), get_post_meta($id,'_travel_reserve_url',true)]);
+        """))
+        assert [(r["item"]["lv"], r["item"]["en"], r["from"], r["to"]) for r in stored[0]] == [
+            ("Lidojums", "Flight", 170, 220.5), ("Brokastis", "Breakfast", None, None)], stored[0]
+        assert [(r["date"], r["to"], r["time"], r["label"]["lv"], r["label"]["en"]) for r in stored[1]] == [
+            ("2026-12-02", "", "15:00 CET", "Reģistrācija", "Pre-registration opens"), ("2027-02-13", "", "17:00", "", "Worldwide sale"),
+            ("2027-07-16", "2027-07-18", "", "Festivāls", "Festival weekend")], stored[1]
+        assert stored[2:] == [True, "top", "https://example.org/book"]
+        # A repeat upload never overwrites details already stored.
+        changed = [*detail_row[:5], "Cits | 1", "Other | 1", "", ""]
+        upload("details-repeat", make_book([detail_headers, changed]), (0, 1, 0))
+        assert json.loads(wp("eval", f"echo wp_json_encode(count(spro_trip_included(spro_import_existing('{trip}','_spro_import_key'))));")) == 2
+        # An existing trip without details gets them from a later upload.
+        upload("details-later-base", make_book([["Post title", "Post name"], [title("later"), title("later")]]), (1, 0, 0))
+        upload("details-later", make_book([["Post title", "Post name", "Key dates EN"], [title("later"), title("later"), "01.03.2027 | Sale"]]),
+               (0, 1, 0), "added to 1 existing trip")
+        upload("details-errors", make_book([["Post title", "Price includes LV", "Price includes EN", "Key dates EN (one per line)"],
+               [title("details-bad"), "A | 1\nB", "A | lots", "31.02.2027 | Sale\nTomorrow | Party\n01.03.2027"]]),
+               (0, 0, 1), "C2 (Price includes en)", "same number of lines", "D2 (Key dates en)", "Line 1: the date does not exist",
+               "Line 2: start with a date", "Line 3: write the date, then |")
 
         upload("hyperlink-label", make_book([["Post title", "Travel website URL"], [title("link"), "Trip website"]],
                lambda b, s: setattr(s["B2"], "hyperlink", "https://example.org/trip")), (1, 0, 0))
@@ -181,6 +246,8 @@ def main():
             for r, values in enumerate(sample):
                 for c, value in enumerate(values):
                     table.write(r, c, value)
+            table.write(0, 5, "Travel description EN")
+            table.write(1, 5, prose)
             table.write(3, 4, "invalid")
             table.write(0, 4, "Travel date from")
             picture = io.BytesIO()
@@ -190,6 +257,21 @@ def main():
             path = Path(folder) / "sample.numbers"
             native.save(path)
             contents = path.read_bytes()
+        # A Numbers row with one-per-line Key dates and a hint after the header name.
+        with tempfile.TemporaryDirectory() as folder:
+            native_details = Document(sheet_name="Listings", num_rows=2, num_cols=3)
+            grid = native_details.sheets[0].tables[0]
+            for c, value in enumerate(["Post title", "Post name", "Key dates EN (one per line: date time | what happens)"]):
+                grid.write(0, c, value)
+            for c, value in enumerate([title("native-dates"), title("native-dates"), "24.07.2027 19:30 | Concert\n13.02.2027 | Sale"]):
+                grid.write(1, c, value)
+            path = Path(folder) / "dates.numbers"
+            native_details.save(path)
+            upload("native-details", path.read_bytes(), (1, 0, 0), extension="numbers")
+        native_dates = json.loads(wp("eval", f"""
+            echo wp_json_encode(spro_trip_key_dates(spro_import_existing('{title("native-dates")}','_spro_import_key')));
+        """))
+        assert [(r["date"], r["time"], r["label"]["en"]) for r in native_dates] == [("2027-02-13", "", "Sale"), ("2027-07-24", "19:30", "Concert")]
         upload("native", contents, (0, 1, 2), "Unknown category", extension="numbers")
         run, name, _, _ = checked[-1]
         def resolve(choices):
@@ -207,9 +289,9 @@ def main():
             $id=spro_import_existing('{title("native")}','_spro_import_key');
             echo wp_json_encode([get_post_status($id), has_term('sports','listing_category',$id),
                 has_term('{festival}','listing_category',$id), (bool)get_post_thumbnail_id($id),
-                metadata_exists('post',{run},'_spro_pending_categories')]);
+                metadata_exists('post',{run},'_spro_pending_categories'), get_post_meta($id,'_travel_description_en',true)]);
         """))
-        assert native_meta == ["draft", True, True, True, False]
+        assert native_meta == ["draft", True, True, True, False, formatted]
         upload("native-repeat", contents, (0, 2, 1), "E4", extension="numbers")
         history = opener.open(ADMIN, timeout=30).read().decode()
         assert "View errors" in history and "E4" in history
@@ -221,7 +303,7 @@ def main():
         for run, _, (created, skipped, errors), messages in checked:
             report = persisted[str(run)]
             assert (report["created"], report["skipped"], len(report["errors"])) == (created, skipped, errors)
-            details = " ".join(report["errors"] + report["warnings"])
+            details = " ".join(report["errors"] + report["warnings"]) + f" added to {report.get('details', 0)} existing trip"
             assert all(text in details for text in messages)
         result = wp("eval", f"""
             wp_set_current_user({user});

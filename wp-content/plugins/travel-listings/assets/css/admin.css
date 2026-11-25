@@ -18,3 +18,29 @@
     padding: 8px;
     font-size: 14px;
 }
+
+/* Trip page details box */
+.spro-trip-details h3 {margin:24px 0 4px}
+.spro-trip-details h3:first-child {margin-top:8px}
+.spro-detail-table {margin-top:8px}
+.spro-detail-table th,.spro-detail-table td {padding:6px 8px;vertical-align:middle}
+.spro-detail-table {table-layout:fixed;width:100%}
+.spro-detail-table input {width:100%;min-width:0;box-sizing:border-box}
+.spro-detail-table input[type=date] {padding-inline:4px}
+.spro-detail-table td:last-child,.spro-detail-table th:last-child {width:70px}
+.spro-detail-table tbody:empty::after {content:"No rows yet.";display:block;padding:10px 8px;color:#646970}
+.spro-photo {display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:8px}
+.spro-photo [data-spro-photo-preview] img {display:block;max-width:300px;height:auto;border-radius:6px}
+
+.spro-related p {margin:6px 0}
+.spro-related-list {margin:4px 0 10px 24px;max-width:640px}
+.spro-related-list input[type=search] {width:100%;max-width:360px}
+.spro-related-list ul {margin:6px 0;max-height:340px;overflow:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff}
+.spro-related-list li {margin:0;border-top:1px solid #f0f0f1}
+.spro-related-list li:first-child {border-top:0}
+.spro-related-list label {display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer}
+.spro-related-list label:hover {background:#f6f7f7}
+.spro-related-thumb {flex:none;width:40px;height:40px;border-radius:4px;overflow:hidden;background:#f0f0f1}
+.spro-related-thumb img {display:block;width:40px;height:40px;object-fit:cover}
+.spro-related-list small {color:#646970}
+.spro-related-preview {margin-left:24px!important}

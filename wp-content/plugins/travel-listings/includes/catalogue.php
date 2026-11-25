@@ -25,6 +25,7 @@ function spro_icon($name, $size = 20) {
         'arrow'=>'<path d="M4 12h15m-6-6 6 6-6 6"/>',
         'back'=>'<path d="M20 12H5m6-6-6 6 6 6"/>',
         'chevron'=>'<path d="m7 10 5 5 5-5"/>',
+        'external'=>'<path d="M14 4h6v6m0-6-9 9m7 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
         'sort'=>'<path d="M4 6h14M4 12h10M4 18h6"/>',
         'more'=>'<circle cx="4" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="20" cy="12" r="1.3"/>',
         'grid'=>'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',

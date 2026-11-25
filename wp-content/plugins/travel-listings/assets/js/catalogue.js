@@ -130,3 +130,27 @@
     if (location.search !== renderedSearch) update(location.href, false, true);
   });
 })();
+
+/* Trip page: open the trip flyer in a lightbox instead of leaving the page. */
+(function () {
+    document.querySelectorAll('[data-sp-lightbox]').forEach(function (link) {
+        var dialog = document.getElementById(link.getAttribute('data-sp-lightbox'));
+        if (!dialog || typeof dialog.showModal !== 'function') {
+            return;
+        }
+        var image = dialog.querySelector('img');
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (!image.getAttribute('src')) {
+                image.src = image.getAttribute('data-src');
+            }
+            dialog.showModal();
+        });
+        dialog.addEventListener('click', function (event) {
+            // Clicks on the dark backdrop or the close button close the dialog.
+            if (event.target === dialog || event.target.closest('[data-sp-close]')) {
+                dialog.close();
+            }
+        });
+    });
+})();

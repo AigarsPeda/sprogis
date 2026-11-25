@@ -43,5 +43,5 @@ elseif (is_singular('post')): while (have_posts()): the_post(); ?>
 <?php endwhile;
 else: while (have_posts()): the_post(); the_content(); endwhile; endif; ?>
 </main>
-<footer class="sp-footer"><div class="sp-wrap"><a href="<?php echo esc_url($home); ?>"><img width="1600" height="585" src="<?php echo esc_url($logo); ?>" alt="SproTravel"></a><a href="<?php echo esc_url($home . '#offers'); ?>"><?php echo esc_html($offers); ?> <?php echo spro_icon('arrow',16); ?></a></div></footer>
+<?php spro_site_footer($home, $logo); ?>
 <?php wp_footer(); ?></body></html>

@@ -144,6 +144,7 @@ function spro_import_upload($file, $selection_issue = '', $attempted_name = '') 
     } finally {
         if (isset($book)) {
             $report['warnings'] = $book->warnings;
+            $report['details'] = $book->details_added;
             $report['sheet'] = $book->sheet_name;
         }
         if (!empty($converted)) {
@@ -184,7 +185,11 @@ function spro_import_row_error($number, $row, $error) {
 
 function spro_import_run_summary($report) {
     $errors = count($report['errors']);
-    return sprintf('%d created, %d skipped, %d %s.', $report['created'], $report['skipped'], $errors, $errors === 1 ? 'error' : 'errors');
+    $summary = sprintf('%d created, %d skipped, %d %s.', $report['created'], $report['skipped'], $errors, $errors === 1 ? 'error' : 'errors');
+    if (!empty($report['details'])) {
+        $summary .= sprintf(' Included items or key dates added to %d existing %s.', $report['details'], $report['details'] === 1 ? 'trip' : 'trips');
+    }
+    return $summary;
 }
 
 function spro_import_errors($report) {
@@ -229,13 +234,13 @@ function spro_import_page() {
             </div>
         <?php endif; ?>
         <p><a class="button button-secondary" href="<?php echo esc_url(plugins_url('assets/templates/sprotravel-listings-template.xlsx', dirname(__DIR__) . '/travel-listings.php')); ?>" download>Download Excel template</a></p>
-        <p>Fill in the Listings tab, starting in row 2. The Instructions tab explains each field and includes examples. Check existing <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=listing_category&post_type=travel_listing')); ?>">listing categories</a>.</p>
+        <p>Fill in the Listings tab, one trip per row. Row 2 is a filled-in example of an existing trip; uploading skips it. Each trip’s Price includes and Key dates columns hold one item per line and load into the trip page automatically. The Instructions tab explains each field and includes examples. Check existing <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=listing_category&post_type=travel_listing')); ?>">listing categories</a>.</p>
         <form id="spro-import-form" enctype="multipart/form-data" method="post" action="<?php echo esc_url($action); ?>">
             <input type="hidden" name="selection_issue"><input type="hidden" name="attempted_name">
             <div id="spro-import-drop" style="max-width:640px;padding:24px;border:2px dashed #8c8f94;background:white;margin:16px 0">
                 <label for="spro-workbook"><strong>Drop an Excel or Numbers workbook here or choose a file</strong></label>
                 <p><input required id="spro-workbook" name="workbook" type="file" accept=".xlsx,.numbers" data-max-bytes="<?php echo (int) min(wp_max_upload_size(), 32 * MB_IN_BYTES); ?>" aria-describedby="spro-import-help"></p>
-                <p id="spro-import-help" class="description">Choose one .xlsx or .numbers file up to <?php echo esc_html(size_format(min(wp_max_upload_size(), 32 * MB_IN_BYTES))); ?>. In Numbers, put photos inside the Featured image cells or paste direct image URLs. Only Post title is required. Leave Post status blank for a draft. Keep Post name stable to avoid duplicates.</p>
+                <p id="spro-import-help" class="description">Choose one .xlsx or .numbers file up to <?php echo esc_html(size_format(min(wp_max_upload_size(), 32 * MB_IN_BYTES))); ?>. In Numbers, put pictures inside the Featured image or Trip page photo cells, or paste direct image URLs. Only Post title is required. Leave Post status blank for a draft. Keep Post name stable to avoid duplicates.</p>
                 <p aria-live="polite" id="spro-import-status"></p>
                 <div id="spro-import-actions" hidden>
                     <?php submit_button('Import workbook', 'primary', 'spro-import-submit', false); ?>
