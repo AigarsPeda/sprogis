@@ -2059,6 +2059,9 @@ select.filter-input {
 }
 
 .listing-price-badge {
+    max-width: calc(100% - 24px);
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
     position: absolute;
     top: 12px;
     right: 12px;
@@ -2139,6 +2142,7 @@ select.filter-input {
 }
 
 .listing-price-meta {
+    overflow-wrap: anywhere;
     color: #0077b6;
     font-weight: 600;
 }

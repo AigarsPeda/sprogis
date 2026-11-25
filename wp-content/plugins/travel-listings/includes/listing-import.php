@@ -155,10 +155,6 @@ function spro_import_row($book, $row, &$seen = [], $category_map = [], &$missing
     foreach (['price', 'location', 'contact phone'] as $field) {
         $meta['_travel_' . str_replace(' ', '_', $field)] = sanitize_text_field($data['travel ' . $field] ?? '');
     }
-    $price = preg_replace('/\s+/', ' ', $meta['_travel_price']);
-    if ((function_exists('mb_strlen') ? mb_strlen($price) : strlen($price)) > 40) {
-        $issue('travel price', 'Shorten the price to 40 characters so it can appear on the listing. Put longer details in the description.');
-    }
     $email = $data['travel contact email'] ?? '';
     $url = $data['travel website url'] ?? '';
     if ($email !== '' && !is_email($email)) {

@@ -366,7 +366,7 @@ body.single-travel_listing main {
     text-align: right;
     font-size: clamp(2.6rem, 3.3vw, 3.4rem);
     color: #0f172a;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 
 .listing-contact-buttons {

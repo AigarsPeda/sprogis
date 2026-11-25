@@ -129,8 +129,12 @@ def main():
         upload("excel-1900", make_book([headers, [title("excel-bug"), None, 60]]), (0, 0, 1), "C2", "calendar")
         upload("excel-1904", make_book([headers, [title("mac"), title("mac"), datetime.datetime(2028, 2, 29, 12)]],
                lambda b, s: setattr(b, "epoch", CALENDAR_MAC_1904)), (1, 0, 0))
-        upload("overlong-price", make_book([["Post title", "Travel price"], [title("price"), "ab" * 22]]),
-               (0, 0, 1), "40 characters")
+        long_price = "≈640–915 €/personai (aplēse; biļete €85 sākumcena)"
+        upload("long-price", make_book([["Post title", "Travel price"], [title("price"), long_price]]), (1, 0, 0))
+        assert wp("eval", f"""
+            $id=spro_import_existing('{title("price")}','_spro_import_key');
+            echo spro_price($id);
+        """) == long_price
 
         upload("hyperlink-label", make_book([["Post title", "Travel website URL"], [title("link"), "Trip website"]],
                lambda b, s: setattr(s["B2"], "hyperlink", "https://example.org/trip")), (1, 0, 0))

@@ -1002,23 +1002,10 @@ class Travel_Listings {
 
     /**
      * Get a safe display version of the price field.
-     * Prevent obviously broken long-form content from blowing up card layouts.
      */
     public function get_listing_price($post_id) {
         $price = sanitize_text_field((string) get_post_meta($post_id, '_travel_price', true));
-        $price = trim((string) preg_replace('/\s+/', ' ', $price));
-
-        if ($price === '') {
-            return '';
-        }
-
-        $price_length = function_exists('mb_strlen') ? mb_strlen($price) : strlen($price);
-
-        if ($price_length > 40) {
-            return '';
-        }
-
-        return $price;
+        return trim((string) preg_replace('/\s+/', ' ', $price));
     }
     
     /**
